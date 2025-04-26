@@ -2,11 +2,63 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Практика</title>
+    <title>Темы - Практика</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .topic {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-width: 600px;
+        }
+        .topic a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        .topic a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-<h1>Раздел: Практика</h1>
-<p>Здесь будут отображаться практические задачи и их решения.</p>
-<a href="/">Вернуться на главную</a>
+<h1>Практические задания</h1>
+
+<form th:action="@{/practice}" method="get">
+    <input type="text" name="search" placeholder="Поиск по практикам..." th:value="${search}">
+    <button type="submit">Искать</button>
+</form>
+
+<div th:each="topic : ${topics}" class="topic">
+    <h2 th:text="${topic.title}"></h2>
+    <p th:text="${topic.content}"></p>
+    <a th:href="${topic.videoUrl}" target="_blank">Смотреть видео</a>
+</div>
+
 </body>
 </html>
