@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class TopicServiceImpl implements TopicService{
+public class TopicServiceImpl implements TopicService {
+
     private final TopicRepository topicRepository;
 
     @Autowired
@@ -30,4 +31,14 @@ public class TopicServiceImpl implements TopicService{
     public Topic getTopicById(Long id) {
         return topicRepository.findById(id).orElse(null);
     }
+
+    @Override
+    public List<Topic> getTopicsByTypeAndSearch(String type, String keyword) {
+        if (keyword == null || keyword.isEmpty()) {
+            return topicRepository.findByType(type);
+        } else {
+            return topicRepository.findByTypeAndTitleContainingIgnoreCase(type, keyword);
+        }
+    }
 }
+

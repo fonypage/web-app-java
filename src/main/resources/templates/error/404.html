@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Страница не найдена</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 100px;
+    }
+    h1 {
+      font-size: 80px;
+      color: #4CAF50;
+    }
+    p {
+      font-size: 24px;
+      margin: 20px;
+    }
+    a {
+      margin-top: 30px;
+      display: inline-block;
+      padding: 12px 30px;
+      background-color: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 20px;
+    }
+    a:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+<h1>404</h1>
+<p>Упс! Такой страницы не существует.</p>
+<a th:href="@{/}">Вернуться на главную</a>
+
+</body>
+</html>

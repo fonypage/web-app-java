@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Ошибка сервера</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 100px;
+      background-color: #ffe6e6;
+    }
+    h1 {
+      font-size: 80px;
+      color: #f44336;
+    }
+    p {
+      font-size: 24px;
+      margin: 20px;
+    }
+    a {
+      margin-top: 30px;
+      display: inline-block;
+      padding: 12px 30px;
+      background-color: #f44336;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 20px;
+    }
+    a:hover {
+      background-color: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+
+<h1>500</h1>
+<p>Что-то пошло не так на сервере.</p>
+<p>Мы уже работаем над этим!</p>
+<a th:href="@{/}">Вернуться на главную</a>
+
+</body>
+</html>

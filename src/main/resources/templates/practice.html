@@ -2,14 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Темы - Практика</title>
+    <title>Практика - Изучение Java</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 40px;
+            background-color: #f9f9f9;
         }
         h1 {
             text-align: center;
+            margin-bottom: 30px;
         }
         form {
             text-align: center;
@@ -35,7 +37,10 @@
             padding: 20px;
             border: 1px solid #ddd;
             border-radius: 8px;
-            max-width: 600px;
+            max-width: 700px;
+            background-color: white;
+            text-align: left;
+            transition: all 0.5s ease;
         }
         .topic a {
             color: #4CAF50;
@@ -44,9 +49,49 @@
         .topic a:hover {
             text-decoration: underline;
         }
+        .task {
+            margin-top: 10px;
+        }
+        pre {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        .no-results {
+            text-align: center;
+            font-size: 18px;
+            color: #777;
+            margin-top: 30px;
+        }
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #f44336;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            z-index: 1000;
+        }
+        .back-button:hover {
+            background-color: #d32f2f;
+        }
     </style>
 </head>
 <body>
+
+<a th:href="@{/}" class="back-button">← На главную</a>
+
 <h1>Практические задания</h1>
 
 <form th:action="@{/practice}" method="get">
@@ -54,10 +99,22 @@
     <button type="submit">Искать</button>
 </form>
 
+<div th:if="${#lists.isEmpty(topics)}" class="no-results">
+    Практические задания не найдены.
+</div>
+
 <div th:each="topic : ${topics}" class="topic">
     <h2 th:text="${topic.title}"></h2>
-    <p th:text="${topic.content}"></p>
-    <a th:href="${topic.videoUrl}" target="_blank">Смотреть видео</a>
+
+    <div class="task">
+        <p><b>Задача:</b></p>
+        <p th:text="${topic.content}"></p>
+    </div>
+
+    <div class="task" th:if="${topic.videoUrl}">
+        <p><b>Пример кода:</b></p>
+        <pre><code th:utext="${topic.videoUrl}"></code></pre>
+    </div>
 </div>
 
 </body>
