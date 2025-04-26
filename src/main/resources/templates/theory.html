@@ -7,9 +7,11 @@
     body {
       font-family: Arial, sans-serif;
       margin: 40px;
+      background-color: #f9f9f9;
     }
     h1 {
       text-align: center;
+      margin-bottom: 30px;
     }
     form {
       text-align: center;
@@ -35,8 +37,28 @@
       padding: 20px;
       border: 1px solid #ddd;
       border-radius: 8px;
-      max-width: 600px;
+      max-width: 700px;
+      background-color: white;
+      text-align: left;
+
+      /* Плавная анимация появления */
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.5s ease forwards;
     }
+    .topic:nth-child(odd) {
+      animation-delay: 0.1s;
+    }
+    .topic:nth-child(even) {
+      animation-delay: 0.2s;
+    }
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .topic a {
       color: #4CAF50;
       text-decoration: none;
@@ -44,9 +66,35 @@
     .topic a:hover {
       text-decoration: underline;
     }
+    .no-results {
+      text-align: center;
+      font-size: 18px;
+      color: #777;
+      margin-top: 30px;
+    }
+
+    /* Фиксированная кнопка "назад" */
+    .back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background-color: #f44336;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-decoration: none;
+      z-index: 9999;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .back-button:hover {
+      background-color: #d32f2f;
+    }
   </style>
 </head>
 <body>
+
+<a th:href="@{/}" class="back-button">← На главную</a>
+
 <h1>Теоретические темы</h1>
 
 <form th:action="@{/theory}" method="get">
@@ -54,10 +102,22 @@
   <button type="submit">Искать</button>
 </form>
 
-<div th:each="topic : ${topics}" class="topic">
+<div th:if="${#lists.isEmpty(topics)}" class="no-results">
+  Темы не найдены.
+</div>
+
+<div th:each="topic, iterStat : ${topics}" class="topic">
   <h2 th:text="${topic.title}"></h2>
-  <p th:text="${topic.content}"></p>
-  <a th:href="${topic.videoUrl}" target="_blank">Смотреть видео</a>
+
+  <div class="task">
+    <p th:text="${topic.content}"></p>
+  </div>
+
+  <div class="task" th:if="${topic.videoUrl}">
+    <p><b>Видео по теме:</b></p>
+    <a th:href="${topic.videoUrl}" target="_blank" style="font-weight: bold;" th:text="${topic.videoUrl}"></a>
+
+  </div>
 </div>
 
 </body>

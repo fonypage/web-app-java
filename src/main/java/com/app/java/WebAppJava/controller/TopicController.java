@@ -20,15 +20,18 @@ public class TopicController {
     }
 
     @GetMapping("/theory")
-    public String showTheory(Model model){
-        List<Topic> theoryTopics = topicService.getTopicsByType("theory");
-        model.addAttribute("topics", theoryTopics);
+    public String showTheory(@RequestParam(required = false) String search, Model model) {
+        List<Topic> topics = topicService.getTopicsByTypeAndSearch("theory", search);
+        model.addAttribute("topics", topics);
+        model.addAttribute("search", search);
         return "theory";
     }
+
     @GetMapping("/practice")
-    public String showPractice(Model model) {
-        List<Topic> practiceTopics = topicService.getTopicsByType("practice");
-        model.addAttribute("topics", practiceTopics);
+    public String showPractice(@RequestParam(required = false) String search, Model model) {
+        List<Topic> topics = topicService.getTopicsByTypeAndSearch("practice", search);
+        model.addAttribute("topics", topics);
+        model.addAttribute("search", search);
         return "practice";
     }
 
@@ -39,8 +42,4 @@ public class TopicController {
         return "topic-detail";
     }
 
-    @GetMapping("/error")
-    public String error(){
-        return "error";
-    }
 }
