@@ -35,76 +35,32 @@ public class TestController {
         model.addAttribute("questions", questions);
         return "test";
     }
-
-//    @PostMapping("/test-result")
-//    public String checkTest(@RequestParam Map<String, String> formData, Model model) {
-//        int correct = 0;
-//        int total = 0;
-//
-//        for (String key : formData.keySet()) {
-//            if (key.startsWith("q_")) {
-//                total++;
-//                try {
-//                    Long answerId = Long.parseLong(formData.get(key));
-//                    Optional<Answer> answerOpt = answerRepository.findById(answerId);
-//                    if (answerOpt.isPresent() && answerOpt.get().isCorrect()) {
-//                        correct++;
-//                    }
-//                } catch (NumberFormatException e) {
-//                    // некорректный id ответа — просто пропускаем
-//                }
-//            }
-//        }
-//
-//        model.addAttribute("correctCount", correct);
-//        model.addAttribute("totalCount", total);
-//        return "test-result";
-//    }
 @PostMapping("/test-result")
-public String handleTestResult(
-        @RequestParam Long topicId,
-        HttpServletRequest request,
-        Model model
-) {
-    // Получаем все вопросы по теме
+public String handleTestResult(@RequestParam Long topicId, HttpServletRequest request, Model model) {
     List<Question> questions = questionRepository.findByTopicId(topicId);
-
     int correctCount = 0;
     int totalCount = questions.size();
-
-    // Массив для хранения ID выбранных пользователем ответов
     Map<Long, Long> selectedAnswers = new HashMap<>();
-    // Список вопросов с правильностью
     List<QuestionResult> questionResults = new ArrayList<>();
-
     for (Question question : questions) {
         String paramName = "q_" + question.getId();
         String selectedAnswerIdStr = request.getParameter(paramName);
-
         if (selectedAnswerIdStr != null) {
             Long selectedAnswerId = Long.parseLong(selectedAnswerIdStr);
             selectedAnswers.put(question.getId(), selectedAnswerId);
 
-            // Проверка правильности
             boolean isCorrect = question.getAnswers().stream()
                     .anyMatch(a -> a.getId().equals(selectedAnswerId) && a.isCorrect());
-
             if (isCorrect) correctCount++;
-
-            // Добавляем в список с результатом
             questionResults.add(new QuestionResult(question, selectedAnswerId, isCorrect));
         } else {
-            // Пользователь не выбрал ответ
             questionResults.add(new QuestionResult(question, null, false));
         }
     }
-
     model.addAttribute("correctCount", correctCount);
     model.addAttribute("totalCount", totalCount);
     model.addAttribute("questionResults", questionResults);
-
     return "test-result";
 }
-
 }
 
