@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Результат теста</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .question-block {
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .answer {
+            display: block;
+            margin: 5px 0;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .selected {
+            font-weight: bold;
+            border: 1px dashed #888;
+        }
+
+        .correct {
+            background-color: #d5d7d6;
+            color: #060606;
+        }
+
+        .incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .result {
+            text-align: center;
+            margin: 30px 0;
+            font-size: 18px;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+        .checkmark {
+            color: green;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+    </style>
+</head>
+<body>
+
+<h2>Результат тестирования</h2>
+
+<div class="result">
+    Правильных ответов: <b th:text="${correctCount}"></b> из <span th:text="${totalCount}"></span>
+</div>
+
+<div th:each="result : ${questionResults}" class="question-block">
+    <p><b th:text="${result.question.question}">Вопрос</b></p>
+
+    <div th:each="answer : ${result.question.answers}"
+         th:class="'answer ' + (${answer.id} == ${result.selectedAnswerId} ? 'selected ' : '') + (answer.correct ? 'correct' : (${answer.id} == ${result.selectedAnswerId} ? 'incorrect' : ''))">
+        <span th:text="${answer.text}"></span>
+        <span th:if="${answer.correct}" class="checkmark">✓</span>
+    </div>
+</div>
+
+<div class="result">
+    <a th:href="@{/theory}">← Назад к темам</a>
+</div>
+
+</body>
+</html>

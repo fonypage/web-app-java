@@ -43,17 +43,37 @@
       color: #4CAF50;
       text-decoration: none;
     }
-    .video-button {
+    .btn {
       display: inline-block;
       padding: 10px 20px;
-      background-color: #4CAF50;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
       margin-top: 10px;
+      font-size: 16px;
+      text-decoration: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 8px;
+      border: none;
+      transition: background-color 0.3s ease;
     }
-    .video-button:hover {
-      background-color: #45a049;
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+
+    .video-btn {
+      background-color: #6c757d;
+    }
+
+    .video-btn:hover {
+      background-color: #5a6268;
+    }
+
+    .test-btn {
+      background-color: #28a745;
+    }
+
+    .test-btn:hover {
+      background-color: #218838;
     }
 
   </style>
@@ -64,8 +84,10 @@
   <p th:text="${topic.content}"></p>
 
   <div th:if="${topic.type == 'theory'}">
-    <a th:href="${topic.videoUrl}" target="_blank" class="video-button">Смотреть видео</a>
+    <a th:href="@{'/test/' + ${topic.id}}" class="btn test-btn">Пройти тест</a>
+    <a th:href="${topic.videoUrl}" target="_blank" class="btn video-btn">Смотреть видео</a>
   </div>
+
 
   <div th:if="${topic.type == 'practice'}">
     <p><strong>Пример кода:</strong></p>

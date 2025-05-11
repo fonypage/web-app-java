@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Тест</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f6f8fa;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+    }
+    form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    p {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    label {
+      display: inline-block;
+      margin: 4px 0;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+<h1 th:text="Тест"></h1>
+
+<form th:action="@{/test-result}" method="post">
+  <input type="hidden" th:name="topicId" th:value="${topicId}"/>
+  <div th:each="question : ${questions}">
+    <p th:text="${question.question}"></p>
+    <div th:each="answer : ${question.answers}">
+      <label>
+        <input type="radio" th:name="${'q_' + question.id}" th:value="${answer.id}" required/>
+        <span th:text="${answer.text}"></span>
+      </label><br/>
+    </div>
+  </div>
+  <button type="submit">Отправить</button>
+</form>
+</body>
+</html>
