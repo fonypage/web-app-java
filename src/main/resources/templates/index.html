@@ -23,14 +23,28 @@
       cursor: pointer;
       text-decoration: none;
     }
-    .btn:hover {
-      background-color: #45a049;
+    .admin-button {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background-color: #333;
+      color: white;
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 5px;
+      text-decoration: none;
     }
+    .admin-button:hover {
+      background-color: #555;
+    }
+
   </style>
 </head>
 <body>
+<a href="/admin/dashboard" class="admin-button">Админ</a>
 <h1>Платформа для изучения Java</h1>
 <a th:href="@{/theory}" class="btn">Теория</a>
 <a th:href="@{/practice}" class="btn">Практика</a>
+
 </body>
 </html>

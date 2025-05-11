@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${topic.id != null} ? 'Редактирование темы' : 'Создание темы'">Форма темы</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 40px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-top: 5px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 th:text="${topic.id != null} ? 'Редактировать тему' : 'Добавить новую тему'"></h2>
+
+    <form th:action="@{/admin/topics/save}" th:object="${topic}" method="post">
+        <input type="hidden" th:field="*{id}"/>
+
+        <label for="title">Название темы:</label>
+        <input type="text" id="title" th:field="*{title}" required/>
+
+        <label for="content">Описание/Задача:</label>
+        <textarea id="content" th:field="*{content}" rows="5" required></textarea>
+
+        <label for="type">Тип:</label>
+        <select id="type" th:field="*{type}">
+            <option value="theory">Теория</option>
+            <option value="practice">Практика</option>
+        </select>
+
+        <label for="videoUrl">Ссылка на видео (или код для практики):</label>
+        <textarea id="videoUrl" th:field="*{videoUrl}" rows="3"></textarea>
+
+        <button type="submit">Сохранить</button>
+    </form>
+
+    <a th:href="@{/admin/dashboard}" class="back-link">← Назад в админку</a>
+</div>
+</body>
+</html>

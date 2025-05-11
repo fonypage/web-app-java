@@ -104,17 +104,9 @@
 </div>
 
 <div th:each="topic : ${topics}" class="topic">
-    <h2 th:text="${topic.title}"></h2>
-
-    <div class="task">
-        <p><b>Задача:</b></p>
-        <p th:text="${topic.content}"></p>
-    </div>
-
-    <div class="task" th:if="${topic.videoUrl}">
-        <p><b>Пример кода:</b></p>
-        <pre><code th:utext="${topic.videoUrl}"></code></pre>
-    </div>
+    <h2>
+        <a th:href="@{'/topic/' + ${topic.id}}" th:text="${topic.title}"></a>
+    </h2>
 </div>
 
 </body>
