@@ -23,11 +23,6 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public List<Topic> getTopicsByType(String type) {
-        return topicRepository.findByType(type);
-    }
-
-    @Override
     public Topic getTopicById(Long id) {
         return topicRepository.findById(id).orElse(null);
     }
@@ -40,5 +35,15 @@ public class TopicServiceImpl implements TopicService {
             return topicRepository.findByTypeAndTitleContainingIgnoreCase(type, keyword);
         }
     }
+    @Override
+    public Topic saveTopic(Topic topic) {
+        return topicRepository.save(topic);
+    }
+
+    @Override
+    public void deleteTopicById(Long id) {
+        topicRepository.deleteById(id);
+    }
+
 }
 

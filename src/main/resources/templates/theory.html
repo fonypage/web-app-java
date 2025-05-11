@@ -106,18 +106,10 @@
   Темы не найдены.
 </div>
 
-<div th:each="topic, iterStat : ${topics}" class="topic">
-  <h2 th:text="${topic.title}"></h2>
-
-  <div class="task">
-    <p th:text="${topic.content}"></p>
-  </div>
-
-  <div class="task" th:if="${topic.videoUrl}">
-    <p><b>Видео по теме:</b></p>
-    <a th:href="${topic.videoUrl}" target="_blank" style="font-weight: bold;" th:text="${topic.videoUrl}"></a>
-
-  </div>
+<div th:each="topic : ${topics}" class="topic">
+  <h2>
+    <a th:href="@{'/topic/' + ${topic.id}}" th:text="${topic.title}"></a>
+  </h2>
 </div>
 
 </body>

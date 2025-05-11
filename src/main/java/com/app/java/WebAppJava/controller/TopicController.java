@@ -38,8 +38,9 @@ public class TopicController {
     @GetMapping("/topic/{id}")
     public String showTopicDetail(@PathVariable Long id, Model model) {
         Topic topic = topicService.getTopicById(id);
+        topic.setViews(topic.getViews() + 1);
+        topicService.saveTopic(topic);
         model.addAttribute("topic", topic);
         return "topic-detail";
     }
-
 }
