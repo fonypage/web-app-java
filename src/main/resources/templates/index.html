@@ -4,47 +4,106 @@
   <meta charset="UTF-8">
   <title>Платформа для изучения Java</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 100px;
-    }
-    h1 {
-      margin-bottom: 40px;
-    }
-    .btn {
-      padding: 15px 40px;
-      margin: 20px;
-      font-size: 20px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      text-decoration: none;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; color: #333; }
+    a { text-decoration: none; color: inherit; }
     .admin-button {
-      position: absolute;
-      top: 15px;
-      right: 20px;
-      background-color: #333;
-      color: white;
-      padding: 6px 12px;
-      font-size: 12px;
-      border-radius: 5px;
-      text-decoration: none;
+      position: fixed; top: 15px; right: 20px;
+      background-color: #555; padding: 6px 12px; border-radius: 5px; color: white; font-size: 0.8rem;
     }
-    .admin-button:hover {
-      background-color: #555;
-    }
+    .admin-button:hover { background-color: #777; }
 
+    .hero {
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+      url('/images/hero-bg.png') center/cover no-repeat;
+      height: 70vh; display: flex; flex-direction: column;
+      justify-content: center; align-items: center; text-align: center; color: white; padding: 0 20px;
+    }
+    .hero h1 { font-size: 3rem; margin-bottom: 20px; }
+    .hero p { font-size: 1.2rem; margin-bottom: 30px; max-width: 600px; }
+    .btn { display: inline-block; padding: 15px 40px; margin:10px; font-size: 1rem;
+      background-color: #4CAF50; border-radius: 8px; transition: background 0.2s; color: white; }
+    .btn:hover { background-color: #43a047; }
+
+    .features {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;
+      padding: 60px 20px; background: #f9f9f9;
+    }
+    .feature-card {
+      background: white; border-radius: 8px; padding: 30px; width: 280px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center;
+    }
+    .feature-card img { width: 60px; margin-bottom: 20px; }
+    .feature-card h3 { margin-bottom: 10px; }
+    .feature-card p { font-size: 0.95rem; color: #555; }
+
+    .steps { padding: 60px 20px; text-align: center; }
+    .steps h2 { margin-bottom: 40px; }
+    .step { display: inline-block; width: 180px; margin: 0 20px; }
+    .step img { width: 50px; margin-bottom: 15px; }
+    .step h4 { margin-bottom: 8px; }
+
+    footer {
+      background: #333; color: white; text-align: center; padding: 20px; font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
+
 <a href="/admin/dashboard" class="admin-button">Админ</a>
-<h1>Платформа для изучения Java</h1>
-<a th:href="@{/theory}" class="btn">Теория</a>
-<a th:href="@{/practice}" class="btn">Практика</a>
+
+<!-- Hero -->
+<section class="hero">
+  <h1>Изучи Java легко и интересно</h1>
+  <p>Полный курс от простых основ синтаксиса до продвинутых тем с интерактивными тестами и практическими заданиями.</p>
+  <a th:href="@{/theory}" class="btn">Начать учить</a>
+  <a th:href="@{/practice}" class="btn">Попрактиковаться</a>
+</section>
+
+<!-- Преимущества -->
+<section class="features">
+  <div class="feature-card">
+    <img th:src="@{/images/icon-theory.png}" alt="Теория">
+    <h3>Глубокая теория</h3>
+    <p>Понятные объяснения, наглядные примеры и иллюстрации для лёгкого усвоения материала.</p>
+  </div>
+  <div class="feature-card">
+    <img th:src="@{'/images/icon-practice.png'}" alt="Практика">
+
+    <h3>Практические задачи</h3>
+    <p>Решайте реальные кейсы и сразу проверяйте свои знания через встроенные тесты.</p>
+  </div>
+  <div class="feature-card">
+    <img th:src="@{'/images/icon-test.png'}" alt="Тесты">
+    <h3>Моментальная проверка</h3>
+    <p>Автоматическое тестирование кода и подробный разбор ошибок.</p>
+  </div>
+</section>
+
+<!-- Как это работает -->
+<section class="steps">
+  <h2>Как это работает</h2>
+  <div class="step">
+    <img th:src="@{/images/icon-step1.png}" alt="Шаг 1">
+    <h4>1. Выберите тему</h4>
+    <p>Перейдите в раздел «Теория» и выберите интересующую вас тему.</p>
+  </div>
+  <div class="step">
+    <img th:src="@{/images/icon-step2.png}" alt="Шаг 2">
+    <h4>2. Прочитайте материал</h4>
+    <p>Изучите теорию с примерами и иллюстрациями.</p>
+  </div>
+  <div class="step">
+    <img th:src="@{/images/icon-step3.png}" alt="Шаг 3">
+    <h4>3. Пройдите тест</h4>
+    <p>Проверьте свои знания и получите мгновенную обратную связь.</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  © 2025 Платформа для изучения Java. Все права защищены.
+</footer>
 
 </body>
 </html>
