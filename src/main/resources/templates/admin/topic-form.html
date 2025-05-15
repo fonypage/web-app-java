@@ -4,82 +4,143 @@
     <meta charset="UTF-8">
     <title th:text="${topic.id != null} ? 'Редактирование темы' : 'Создание темы'">Форма темы</title>
     <style>
+        /* светлый фон страницы */
         body {
+            margin: 0;
+            padding: 40px 20px;
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 40px;
+            background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333333;
         }
+
+        /* светлая карточка формы */
         .container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            width: 100%;
             max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+            padding: 30px 40px;
+            animation: fadeIn 0.5s ease-out;
         }
-        h2 {
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* заголовок */
+        .container h2 {
             text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            font-size: 1.8rem;
         }
+
+        /* поля формы */
         form {
-            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
         label {
-            display: block;
-            margin-top: 15px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 6px;
         }
         input[type="text"],
         textarea,
         select {
             width: 100%;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            margin-top: 5px;
+            padding: 12px;
+            border: 1px solid #ccd6e0;
+            border-radius: 6px;
+            background: #fdfdfd;
+            color: #2c3e50;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
+        input::placeholder,
+        textarea::placeholder {
+            color: #999999;
+            opacity: 1;
+        }
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 5px rgba(59,130,246,0.4);
+        }
+
+        /* кнопка */
         button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
+            align-self: center;
+            padding: 12px 30px;
+            background-color: #3b82f6;
+            color: #ffffff;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
             cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            margin-top: 10px;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #2563eb;
+            transform: translateY(-2px);
         }
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* ссылка назад */
         .back-link {
-            display: inline-block;
+            display: block;
+            text-align: center;
             margin-top: 20px;
-            color: #4CAF50;
+            color: #3b82f6;
             text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
         }
         .back-link:hover {
-            text-decoration: underline;
+            color: #1e3a8a;
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2 th:text="${topic.id != null} ? 'Редактировать тему' : 'Добавить новую тему'"></h2>
-
+    <h2 th:text="${topic.id != null} ? 'Редактировать тему' : 'Добавить новую тему'">Форма темы</h2>
     <form th:action="@{/admin/topics/save}" th:object="${topic}" method="post">
         <input type="hidden" th:field="*{id}"/>
 
-        <label for="title">Название темы:</label>
-        <input type="text" id="title" th:field="*{title}" required/>
+        <div>
+            <label for="title">Название темы</label>
+            <input type="text" id="title" th:field="*{title}" placeholder="Введите заголовок" required/>
+        </div>
 
-        <label for="content">Описание/Задача:</label>
-        <textarea id="content" th:field="*{content}" rows="5" required></textarea>
+        <div>
+            <label for="content">Описание / Задача</label>
+            <textarea id="content" th:field="*{content}" rows="5" placeholder="Текст теории или задание для практики" required></textarea>
+        </div>
 
-        <label for="type">Тип:</label>
-        <select id="type" th:field="*{type}">
-            <option value="theory">Теория</option>
-            <option value="practice">Практика</option>
-        </select>
+        <div>
+            <label for="type">Тип</label>
+            <select id="type" th:field="*{type}">
+                <option value="theory">Теория</option>
+                <option value="practice">Практика</option>
+            </select>
+        </div>
 
-        <label for="videoUrl">Ссылка на видео (или код для практики):</label>
-        <textarea id="videoUrl" th:field="*{videoUrl}" rows="3"></textarea>
+        <div>
+            <label for="videoUrl">Ссылка на видео (или код для практики)</label>
+            <textarea id="videoUrl" th:field="*{videoUrl}" rows="2" placeholder="URL видео или пример кода"></textarea>
+        </div>
 
         <button type="submit">Сохранить</button>
     </form>
