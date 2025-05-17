@@ -7,22 +7,66 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; color: #333; }
     a { text-decoration: none; color: inherit; }
-    .admin-button {
-      position: fixed; top: 15px; right: 20px;
-      background-color: #555; padding: 6px 12px; border-radius: 5px; color: white; font-size: 0.8rem;
-    }
-    .admin-button:hover { background-color: #777; }
 
+    /* Кнопка Админ */
+    .admin-button {
+      position: fixed;
+      top: 24px;
+      right: 20px;
+      background-color: #555;
+      padding: 6px 12px;
+      border-radius: 5px;
+      color: white;
+      font-size: 0.8rem;
+    }
+    .admin-button:hover {
+      background-color: #777;
+    }
+
+    /* Контейнер для кнопок аккаунта */
+    .account-btns {
+      position: fixed;
+      top: 15px;     /* равный отступ сверху с .admin-button */
+      right: 100px;  /* подвиньте по горизонтали при необходимости */
+    }
+    .account-btns .btn,
+    .account-btns form button {
+      margin-left: 8px;
+      background-color: #007bff;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      border: none;
+      cursor: pointer;
+      line-height: 1; /* чтобы вертикально центрировать текст */
+    }
+    .account-btns .btn:hover,
+    .account-btns form button:hover {
+      background-color: #0056b3;
+    }
+    .account-btns form {
+      display: inline;
+    }
+
+    /* Остальная стилизация страницы */
     .hero {
       background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
       url('/images/hero-bg.png') center/cover no-repeat;
-      height: 70vh; display: flex; flex-direction: column;
-      justify-content: center; align-items: center; text-align: center; color: white; padding: 0 20px;
+      height: 70vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: white;
+      padding: 0 20px;
     }
     .hero h1 { font-size: 3rem; margin-bottom: 20px; }
     .hero p { font-size: 1.2rem; margin-bottom: 30px; max-width: 600px; }
     .btn { display: inline-block; padding: 15px 40px; margin:10px; font-size: 1rem;
-      background-color: #4CAF50; border-radius: 8px; transition: background 0.2s; color: white; }
+      background-color: #4CAF50; border-radius: 8px; transition: background 0.2s; color: white;
+    }
     .btn:hover { background-color: #43a047; }
 
     .features {
@@ -50,7 +94,33 @@
 </head>
 <body>
 
+<!-- Кнопка Админ -->
 <a href="/admin/dashboard" class="admin-button">Админ</a>
+
+<!-- Кнопки аккаунта -->
+<div class="account-btns">
+  <!-- Для залогиненного Админа -->
+  <div th:if="${#request.isUserInRole('ADMIN')}">
+    <form th:action="@{/logout}" method="post">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <button type="submit" class="btn">Выйти (Admin)</button>
+    </form>
+  </div>
+
+  <!-- Для залогиненного пользователя -->
+  <div th:if="${#request.isUserInRole('USER')}">
+    <a th:href="@{/my-tests}" class="btn">Мои тесты</a>
+    <form th:action="@{/logout-user}" method="post">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <button type="submit" class="btn">Выйти</button>
+    </form>
+  </div>
+
+  <!-- Если не залогинен -->
+  <div th:unless="${#httpServletRequest.remoteUser != null}">
+    <a th:href="@{/login-user}" class="btn">Войти</a>
+  </div>
+</div>
 
 <!-- Hero -->
 <section class="hero">
@@ -68,13 +138,12 @@
     <p>Понятные объяснения, наглядные примеры и иллюстрации для лёгкого усвоения материала.</p>
   </div>
   <div class="feature-card">
-    <img th:src="@{'/images/icon-practice.png'}" alt="Практика">
-
+    <img th:src="@{/images/icon-practice.png}" alt="Практика">
     <h3>Практические задачи</h3>
     <p>Решайте реальные кейсы и сразу проверяйте свои знания через встроенные тесты.</p>
   </div>
   <div class="feature-card">
-    <img th:src="@{'/images/icon-test.png'}" alt="Тесты">
+    <img th:src="@{/images/icon-test.png}" alt="Тесты">
     <h3>Моментальная проверка</h3>
     <p>Автоматическое тестирование кода и подробный разбор ошибок.</p>
   </div>
@@ -100,7 +169,6 @@
   </div>
 </section>
 
-<!-- Footer -->
 <footer>
   © 2025 Платформа для изучения Java. Все права защищены.
 </footer>
