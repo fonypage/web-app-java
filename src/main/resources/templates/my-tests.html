@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Мои тесты</title>
+</head>
+<body>
+<h2>История тестов</h2>
+<table>
+    <tr>
+        <th>Тема</th>
+        <th>Результат</th>
+        <th>Дата</th>
+    </tr>
+    <tr th:each="result : ${results}">
+        <td th:text="${topics[result.topicId - 1].title}">Тема</td>
+        <td th:text="${result.correctCount + ' из ' + result.totalCount}">Результат</td>
+        <td th:text="${#temporals.format(result.timestamp, 'dd.MM.yyyy HH:mm')}">Дата</td>
+    </tr>
+</table>
+<a th:href="@{/}">← На главную</a>
+</body>
+</html>
