@@ -2,112 +2,148 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Практика - Изучение Java</title>
+    <title>Практика Java — Платформа для изучения Java</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            background-color: #f9f9f9;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        form {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        input[type="text"] {
-            padding: 10px;
-            width: 300px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        button {
-            padding: 10px 20px;
-            margin-left: 10px;
-            background-color: #4CAF50;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f4f4f4; color: #333; }
+        a { text-decoration: none; color: inherit; }
+
+        /* Hero */
+        .hero {
+            background: url('/images/hero-theory.png') center/cover no-repeat;
+            position: relative;
             color: white;
-            border: none;
-            border-radius: 5px;
+            text-align: center;
+            padding: 100px 20px;
+        }
+        .hero::after {
+            content: ''; position: absolute; top:0; left:0; right:0; bottom:0;
+            background: rgba(0,0,0,0.5);
+        }
+        .hero .inner {
+            position: relative; z-index: 1; max-width: 700px; margin: auto;
+        }
+        .hero h1 { font-size: 3rem; margin-bottom: 20px; }
+        .hero p { font-size: 1.2rem; margin-bottom: 30px; line-height: 1.4; }
+
+        /* Features */
+        .features {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 20px; background: #fff; padding: 40px 20px;
+        }
+        .feature-card {
+            background: #fafafa; border-radius: 8px; padding: 20px;
+            width: 260px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .feature-card img { width: 50px; margin-bottom: 15px; }
+        .feature-card h3 { margin-bottom: 10px; font-size: 1.1rem; }
+        .feature-card p { font-size: 0.95rem; color: #666; }
+
+        /* Search */
+        .search-bar {
+            text-align: center; margin: 30px 0;
+        }
+        .search-bar input[type="text"] {
+            padding: 12px; width: 300px; border-radius: 5px; border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+        .search-bar button {
+            padding: 12px 20px; margin-left: 10px; font-size: 1rem;
+            background: #4CAF50; color: white; border: none; border-radius: 5px;
             cursor: pointer;
         }
-        .topic {
-            margin: 20px auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            max-width: 700px;
-            background-color: white;
-            text-align: left;
-            transition: all 0.5s ease;
+
+        /* Topics grid */
+        .topics {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
         }
-        .topic a {
-            color: #4CAF50;
-            text-decoration: none;
+        .topic-card {
+            background: white; padding: 20px; border-radius: 8px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+            opacity: 0; transform: translateY(20px);
+            animation: fadeInUp 0.5s ease forwards;
         }
-        .topic a:hover {
-            text-decoration: underline;
-        }
-        .task {
-            margin-top: 10px;
-        }
-        pre {
-            background-color: #2d2d2d;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 8px;
-            overflow-x: auto;
+        .topic-card:nth-child(odd)  { animation-delay: 0.1s; }
+        .topic-card:nth-child(even) { animation-delay: 0.2s; }
+        .topic-card h2 { font-size: 1.2rem; margin-bottom: 10px; color: #4CAF50; }
+        .topic-card a { color: #333; }
+        .topic-card a:hover { text-decoration: underline; }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        code {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 15px;
-            line-height: 1.5;
-            white-space: pre-wrap;
-        }
+        /* No results */
         .no-results {
-            text-align: center;
-            font-size: 18px;
-            color: #777;
-            margin-top: 30px;
+            text-align: center; font-size: 1.1rem; color: #777; padding: 40px 0;
         }
+
+        /* Back button */
         .back-button {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background-color: #f44336;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            z-index: 1000;
+            display: block; margin: 0 auto 40px;
+            width: max-content; background: #f44336; color: white;
+            padding: 10px 20px; border-radius: 5px;
         }
-        .back-button:hover {
-            background-color: #d32f2f;
-        }
+        .back-button:hover { background: #d32f2f; }
     </style>
 </head>
 <body>
 
+<!-- Hero -->
+<section class="hero">
+    <div class="inner">
+        <h1>Практические задания по Java</h1>
+        <p>Отрабатывайте навыки с реальными задачами и мгновенной проверкой решений.</p>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="features">
+    <div class="feature-card">
+        <img th:src="@{/images/icon-case.png}" alt="Иконка практика">
+        <h3>Реальные кейсы</h3>
+        <p>Задачи, приближенные к промышленным сценариям.</p>
+    </div>
+    <div class="feature-card">
+        <img th:src="@{/images/icon-editor.png}" alt="Иконка редактор">
+        <h3>Встроенный редактор</h3>
+        <p>Пишите и тестируйте код прямо в браузере.</p>
+    </div>
+    <div class="feature-card">
+        <img th:src="@{/images/icon-feedback.png}" alt="Иконка обратная связь">
+        <h3>Мгновенная обратная связь</h3>
+        <p>Узнавайте результат сразу после отправки решения.</p>
+    </div>
+</section>
+
+<!-- Search -->
+<section class="search-bar">
+    <form th:action="@{/practice}" method="get">
+        <input type="text" name="search" placeholder="Поиск по практикам..." th:value="${search}">
+        <button type="submit">Искать</button>
+    </form>
+</section>
+
+<!-- Topics List -->
+<section class="topics">
+    <div th:if="${#lists.isEmpty(topics)}" class="no-results">
+        Практические задания не найдены.
+    </div>
+    <div th:each="topic : ${topics}" class="topic-card">
+        <h2>
+            <a th:href="@{'/topic/' + ${topic.id}}" th:text="${topic.title}"></a>
+        </h2>
+    </div>
+</section>
+
+<!-- Back -->
 <a th:href="@{/}" class="back-button">← На главную</a>
-
-<h1>Практические задания</h1>
-
-<form th:action="@{/practice}" method="get">
-    <input type="text" name="search" placeholder="Поиск по практикам..." th:value="${search}">
-    <button type="submit">Искать</button>
-</form>
-
-<div th:if="${#lists.isEmpty(topics)}" class="no-results">
-    Практические задания не найдены.
-</div>
-
-<div th:each="topic : ${topics}" class="topic">
-    <h2>
-        <a th:href="@{'/topic/' + ${topic.id}}" th:text="${topic.title}"></a>
-    </h2>
-</div>
 
 </body>
 </html>
