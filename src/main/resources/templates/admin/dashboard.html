@@ -2,9 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Админ-панель: Темы</title>
+  <title>Админ-панель: Отели</title>
   <style>
-    /* фон страницы */
     body {
       margin: 0;
       padding: 40px 20px;
@@ -13,8 +12,6 @@
       min-height: 100vh;
       color: #333;
     }
-
-    /* контейнер */
     .container {
       max-width: 1200px;
       margin: auto;
@@ -22,21 +19,13 @@
       border-radius: 12px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.1);
       padding: 30px 40px;
-      animation: fadeIn 0.5s ease-out;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
     h1 {
       text-align: center;
       margin-bottom: 24px;
       color: #2c3e50;
       font-size: 2.2rem;
     }
-
-    /* кнопки */
     .home-button,
     .add-button {
       display: inline-block;
@@ -45,7 +34,6 @@
       border-radius: 6px;
       font-weight: bold;
       text-decoration: none;
-      transition: background 0.3s, transform 0.2s;
       color: #fff;
     }
     .home-button {
@@ -53,17 +41,13 @@
     }
     .home-button:hover {
       background: #2563eb;
-      transform: translateY(-2px);
     }
     .add-button {
       background: #10b981;
     }
     .add-button:hover {
       background: #059669;
-      transform: translateY(-2px);
     }
-
-    /* таблица */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -76,7 +60,7 @@
       background: #e2e8f0;
     }
     th, td {
-      padding: 16px 12px;
+      padding: 12px;
       text-align: left;
       border-bottom: 1px solid #e5e7eb;
       color: #2c3e50;
@@ -87,8 +71,6 @@
     tbody tr:hover {
       background: #f1f5f9;
     }
-
-    /* кнопки действий */
     .action-buttons a {
       display: inline-block;
       margin-right: 8px;
@@ -97,7 +79,6 @@
       text-decoration: none;
       color: #fff;
       font-size: 0.9rem;
-      transition: background 0.2s;
     }
     .edit-btn {
       background: #3b82f6;
@@ -111,43 +92,39 @@
     .delete-btn:hover {
       background: #dc2626;
     }
-
-    /* процент просмотров */
-    .percent {
-      font-weight: bold;
-    }
   </style>
 </head>
 <body>
 <div class="container">
-  <h1>Админ-панель: Темы</h1>
+  <h1>Админ-панель: Отели</h1>
 
   <a th:href="@{/}" class="home-button">← На главную</a>
-  <a th:href="@{/admin/topics/new}" class="add-button">Добавить тему</a>
+  <a th:href="@{/admin/hotels/new}" class="add-button">Добавить отель</a>
 
   <table>
     <thead>
     <tr>
       <th>ID</th>
       <th>Название</th>
-      <th>Тип</th>
+      <th>Город</th>
+      <th>Рейтинг</th>
+      <th>Номера</th>
       <th>Действия</th>
-      <th>Просмотры (%)</th>
     </tr>
     </thead>
     <tbody>
-    <tr th:each="topic : ${topics}">
-      <td th:text="${topic.id}">1</td>
-      <td th:text="${topic.title}">Переменные</td>
-      <td th:text="${topic.type}">theory</td>
+    <tr th:each="h : ${hotels}">
+      <td th:text="${h.id}">1</td>
+      <td th:text="${h.name}">Гранд Отель</td>
+      <td th:text="${h.city}">Москва</td>
+      <td th:text="${h.rating}">4.5</td>
+      <td th:text="${#lists.size(h.rooms)}">0</td>
       <td class="action-buttons">
-        <a th:href="@{'/admin/topics/edit/' + ${topic.id}}" class="edit-btn">Изменить</a>
-        <a th:href="@{'/admin/topics/delete/' + ${topic.id}}"
+        <a th:href="@{'/admin/hotels/edit/' + ${h.id}}" class="edit-btn">Изменить</a>
+        <a th:href="@{'/admin/hotels/delete/' + ${h.id}}"
            class="delete-btn"
-           onclick="return confirm('Удалить тему?')">Удалить</a>
+           onclick="return confirm('Удалить отель и все его номера?')">Удалить</a>
       </td>
-      <td class="percent"
-          th:text="${#numbers.formatDecimal((topic.views*100)/totalViews,0,1)} + '%'">12%</td>
     </tr>
     </tbody>
   </table>

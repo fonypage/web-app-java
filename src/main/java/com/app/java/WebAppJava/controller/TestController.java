@@ -2,9 +2,11 @@ package com.app.java.WebAppJava.controller;
 
 import com.app.java.WebAppJava.model.Answer;
 import com.app.java.WebAppJava.model.Question;
+import com.app.java.WebAppJava.model.TestResult;
 import com.app.java.WebAppJava.model.Topic;
 import com.app.java.WebAppJava.repository.AnswerRepository;
 import com.app.java.WebAppJava.repository.QuestionRepository;
+import com.app.java.WebAppJava.repository.TestResultRepository;
 import com.app.java.WebAppJava.service.QuestionService;
 import com.app.java.WebAppJava.service.TopicService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,51 +18,65 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @Controller
 public class TestController {
 
     private final QuestionRepository questionRepository;
-    private final AnswerRepository answerRepository;
+    private final TestResultRepository resultRepo;
+    private final CookieUtil cookieUtil;
 
-    public TestController(QuestionRepository questionRepository, AnswerRepository answerRepository) {
+    @Autowired
+    public TestController(QuestionRepository questionRepository,
+                          TestResultRepository resultRepo,
+                          CookieUtil cookieUtil) {
         this.questionRepository = questionRepository;
-        this.answerRepository = answerRepository;
+        this.resultRepo = resultRepo;
+        this.cookieUtil = cookieUtil;
     }
 
     @GetMapping("/test/{topicId}")
     public String showTest(@PathVariable Long topicId, Model model) {
-        List<Question> questions = questionRepository.findByTopicId(topicId);
-        model.addAttribute("questions", questions);
+        model.addAttribute("questions", questionRepository.findByTopicId(topicId));
+        model.addAttribute("topicId", topicId);
         return "test";
     }
-@PostMapping("/test-result")
-public String handleTestResult(@RequestParam Long topicId, HttpServletRequest request, Model model) {
-    List<Question> questions = questionRepository.findByTopicId(topicId);
-    int correctCount = 0;
-    int totalCount = questions.size();
-    Map<Long, Long> selectedAnswers = new HashMap<>();
-    List<QuestionResult> questionResults = new ArrayList<>();
-    for (Question question : questions) {
-        String paramName = "q_" + question.getId();
-        String selectedAnswerIdStr = request.getParameter(paramName);
-        if (selectedAnswerIdStr != null) {
-            Long selectedAnswerId = Long.parseLong(selectedAnswerIdStr);
-            selectedAnswers.put(question.getId(), selectedAnswerId);
 
-            boolean isCorrect = question.getAnswers().stream()
-                    .anyMatch(a -> a.getId().equals(selectedAnswerId) && a.isCorrect());
-            if (isCorrect) correctCount++;
-            questionResults.add(new QuestionResult(question, selectedAnswerId, isCorrect));
-        } else {
-            questionResults.add(new QuestionResult(question, null, false));
+    @PostMapping("/test-result")
+    public String handleTestResult(
+            @RequestParam Long topicId,
+            HttpServletRequest req,
+            HttpServletResponse resp,
+            Model model) {
+
+        // 1) Убедимся, что в ответе будет наша кука
+        cookieUtil.ensureSessionCookie(req, resp);
+        String sessionId = cookieUtil.getSessionId(req);
+
+        // 2) Собираем и считаем
+        List<Question> questions = questionRepository.findByTopicId(topicId);
+        int correctCount = 0;
+        for (Question q : questions) {
+            String ans = req.getParameter("q_" + q.getId());
+            if (ans!=null && q.getAnswers().stream()
+                    .anyMatch(a -> a.getId().equals(Long.parseLong(ans)) && a.isCorrect())) {
+                correctCount++;
+            }
         }
+
+        // 3) Сохраняем в БД
+        TestResult r = new TestResult();
+        r.setSessionId(sessionId);
+        r.setCorrectCount(correctCount);
+        resultRepo.save(r);
+
+        // 4) Подготовим вывод
+        model.addAttribute("correctCount", correctCount);
+        model.addAttribute("totalCount", questions.size());
+        return "test-result";
     }
-    model.addAttribute("correctCount", correctCount);
-    model.addAttribute("totalCount", totalCount);
-    model.addAttribute("questionResults", questionResults);
-    return "test-result";
 }
-}
+
 

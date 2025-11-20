@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${room.id != null} ? 'Редактирование номера' : 'Создание номера'">Форма номера</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333333;
+        }
+        .container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+            padding: 30px 40px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 1.8rem;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccd6e0;
+            border-radius: 6px;
+            background: #fdfdfd;
+            font-size: 1rem;
+        }
+        button {
+            align-self: center;
+            padding: 10px 25px;
+            background-color: #3b82f6;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        .back-link {
+            display: block;
+            margin-top: 15px;
+            text-align: center;
+            color: #3b82f6;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 th:text="${room.id != null} ? 'Редактировать номер' : 'Добавить номер'">Форма номера</h2>
+
+    <form th:action="@{/admin/rooms/save}" th:object="${room}" method="post">
+        <input type="hidden" th:field="*{id}"/>
+        <input type="hidden" name="hotelId" th:value="${hotel.id}"/>
+
+        <div>
+            <label for="title">Название номера</label>
+            <input type="text" id="title" th:field="*{title}" placeholder="Стандарт, Люкс..." required/>
+        </div>
+
+        <div>
+            <label for="capacity">Вместимость</label>
+            <input type="number" id="capacity" th:field="*{capacity}" min="1" required/>
+        </div>
+
+        <div>
+            <label for="pricePerNight">Цена за ночь</label>
+            <input type="number" step="0.01" id="pricePerNight" th:field="*{pricePerNight}" required/>
+        </div>
+
+        <div>
+            <label for="imageUrl">Ссылка на изображение</label>
+            <input type="text" id="imageUrl" th:field="*{imageUrl}" placeholder="URL картинки номера"/>
+        </div>
+
+        <div>
+            <label for="description">Описание</label>
+            <textarea id="description" th:field="*{description}" rows="4"
+                      placeholder="Описание номера"></textarea>
+        </div>
+
+        <button type="submit">Сохранить номер</button>
+    </form>
+
+    <a th:href="@{'/admin/hotels/edit/' + ${hotel.id}}" class="back-link">← Назад к отелю</a>
+</div>
+</body>
+</html>

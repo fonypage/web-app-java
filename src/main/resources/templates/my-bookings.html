@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Мои бронирования — HotelBooking</title>
+  <style>
+    :root {
+      --primary: #2f80ed;
+      --primary-dark: #1c64d9;
+      --accent: #f2994a;
+      --bg: #f5f7fb;
+      --text-main: #1f2933;
+      --text-muted: #6b7280;
+      --card-bg: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+    }
+
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 40px;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .navbar-logo {
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--primary-dark);
+      text-decoration: none;
+    }
+    .navbar-logo span { color: var(--accent); }
+    .navbar-links a {
+      margin-left: 16px;
+      text-decoration: none;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .navbar-links a:hover { color: var(--primary-dark); }
+
+    .page {
+      max-width: 1000px;
+      margin: 24px auto 40px;
+      padding: 0 20px;
+    }
+
+    .page-header {
+      margin-bottom: 16px;
+    }
+    .page-title {
+      margin: 0 0 4px;
+      font-size: 24px;
+    }
+    .page-subtitle {
+      margin: 0;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .no-bookings {
+      margin-top: 24px;
+      padding: 18px 20px;
+      border-radius: 12px;
+      background: #e5edff;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+    thead {
+      background: #e5e7eb;
+    }
+    th, td {
+      padding: 10px 12px;
+      font-size: 13px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+    th {
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) {
+      background: #f9fafb;
+    }
+
+    .status {
+      font-weight: 600;
+      font-size: 12px;
+    }
+    .status-new {
+      color: #2563eb;
+    }
+    .status-paid {
+      color: #16a34a;
+    }
+
+    .actions a {
+      font-size: 12px;
+      color: var(--primary-dark);
+      text-decoration: none;
+      margin-right: 8px;
+    }
+    .actions a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<header class="navbar">
+  <a th:href="@{/}" class="navbar-logo">
+    Hotel<span>Booking</span>
+  </a>
+  <nav class="navbar-links">
+    <a th:href="@{/admin/dashboard}">Админ-панель</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-header">
+    <h1 class="page-title">Мои бронирования</h1>
+    <p class="page-subtitle">
+      Здесь отображаются все бронирования, созданные с этого устройства.
+    </p>
+  </div>
+
+  <div th:if="${#lists.isEmpty(bookings)}" class="no-bookings">
+    У вас пока нет бронирований. Перейдите на главную страницу и выберите отель.
+  </div>
+
+  <table th:if="${!#lists.isEmpty(bookings)}">
+    <thead>
+    <tr>
+      <th>Отель</th>
+      <th>Номер</th>
+      <th>Заезд</th>
+      <th>Выезд</th>
+      <th>Гости</th>
+      <th>Сумма</th>
+      <th>Статус</th>
+      <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="b : ${bookings}">
+      <td th:text="${b.room.hotel.name}">Отель</td>
+      <td th:text="${b.room.title}">Номер</td>
+      <td th:text="${b.checkIn}">2025-01-01</td>
+      <td th:text="${b.checkOut}">2025-01-05</td>
+      <td th:text="${b.guests}">2</td>
+      <td th:text="${b.totalPrice}">14000</td>
+      <td>
+        <span class="status"
+              th:classappend="${b.status == 'PAID'} ? ' status-paid' : ' status-new'"
+              th:text="${b.status}">
+            NEW
+        </span>
+      </td>
+      <td class="actions">
+        <form th:action="@{'/my-bookings/delete/' + ${b.id}}" method="post"
+              onsubmit="return confirm('Вы действительно хотите отменить бронирование?');">
+          <button type="submit"
+                  style="
+                        background: #ef4444;
+                        border: none;
+                        color: white;
+                        border-radius: 999px;
+                        padding: 6px 12px;
+                        font-size: 12px;
+                        cursor: pointer;
+                    ">
+            Отменить
+          </button>
+        </form>
+      </td>
+    </tr>
+    </tbody>
+
+  </table>
+</main>
+
+</body>
+</html>

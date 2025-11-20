@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Бронирование — HotelBooking</title>
+  <style>
+    :root {
+      --primary: #2f80ed;
+      --primary-dark: #1c64d9;
+      --accent: #f2994a;
+      --bg: #f5f7fb;
+      --text-main: #1f2933;
+      --text-muted: #6b7280;
+      --card-bg: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+    }
+
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 40px;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .navbar-logo {
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--primary-dark);
+      text-decoration: none;
+    }
+    .navbar-logo span { color: var(--accent); }
+    .navbar-links a {
+      margin-left: 16px;
+      text-decoration: none;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .navbar-links a:hover { color: var(--primary-dark); }
+
+    .page {
+      max-width: 700px;
+      margin: 24px auto 40px;
+      padding: 0 20px;
+    }
+
+    .breadcrumb {
+      font-size: 13px;
+      margin-bottom: 12px;
+      color: var(--text-muted);
+    }
+    .breadcrumb a {
+      color: var(--primary-dark);
+      text-decoration: none;
+    }
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+      padding: 22px 24px 24px;
+    }
+    .card-title {
+      margin: 0 0 4px;
+      font-size: 22px;
+    }
+    .card-subtitle {
+      margin: 0 0 14px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .room-summary {
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #f3f4ff;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .room-summary b {
+      font-weight: 600;
+    }
+
+    .error-box {
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background-color: #fee2e2;
+      color: #b91c1c;
+      font-size: 14px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      margin-top: 4px;
+    }
+    label {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+    input[type="date"],
+    input[type="number"] {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 10px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .form-actions {
+      margin-top: 8px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .link-back {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .link-back:hover { color: var(--primary-dark); }
+  </style>
+</head>
+<body>
+
+<header class="navbar">
+  <a th:href="@{/}" class="navbar-logo">
+    Hotel<span>Booking</span>
+  </a>
+  <nav class="navbar-links">
+    <a th:href="@{/admin/dashboard}">Админ-панель</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="breadcrumb">
+    <a th:href="@{/hotels}">Отели</a>
+    <span> / </span>
+    <a th:href="@{'/hotel/' + ${room.hotel.id}}" th:text="${room.hotel.name}">Отель</a>
+    <span> / </span>
+    <a th:href="@{'/room/' + ${room.id}}" th:text="${room.title}">Номер</a>
+    <span> / </span>
+    <span>Бронирование</span>
+  </div>
+
+  <section class="card">
+    <h1 class="card-title">Бронирование номера</h1>
+    <p class="card-subtitle">Укажите даты поездки и количество гостей.</p>
+
+    <div class="room-summary">
+      <div>
+        <b th:text="${room.title}">Номер</b>
+        в отеле
+        <span th:text="${room.hotel.name}">Отель</span>
+      </div>
+      <div>
+        Вместимость: <b th:text="${room.capacity}">2</b> гостя
+      </div>
+      <div>
+        Цена за ночь: <b th:text="${room.pricePerNight}">4500</b> ₽
+      </div>
+    </div>
+
+    <div th:if="${error}" class="error-box" th:text="${error}">
+      Текст ошибки
+    </div>
+
+    <form th:action="@{/booking}" method="post">
+      <input type="hidden" name="roomId" th:value="${room.id}"/>
+
+      <div>
+        <label for="checkIn">Дата заезда</label>
+        <input type="date" id="checkIn" name="checkIn" required>
+      </div>
+
+      <div>
+        <label for="checkOut">Дата выезда</label>
+        <input type="date" id="checkOut" name="checkOut" required>
+      </div>
+
+      <div>
+        <label for="guests">Количество гостей</label>
+        <input type="number" id="guests" name="guests"
+               min="1" th:attr="max=${room.capacity}" value="1" required>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Подтвердить бронирование</button>
+        <a th:href="@{'/room/' + ${room.id}}" class="link-back">← Вернуться к описанию номера</a>
+      </div>
+    </form>
+  </section>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Мои тесты</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f6f8fa; padding: 20px; }
+    h1 { color: #333; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; }
+    th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+    th { background: #f2f2f2; }
+    tbody tr:nth-child(even) { background: #f9f9f9; }
+    .no-tests { text-align: center; color: #777; margin-top: 40px; }
+  </style>
+</head>
+<body>
+<h1>Мои тесты</h1>
+
+<div th:if="${#lists.isEmpty(results)}" class="no-tests">
+  Вы ещё не проходили ни одного теста.
+</div>
+
+<table th:if="${!#lists.isEmpty(results)}">
+  <thead>
+  <tr>
+    <th>Тема</th>
+    <th>Дата и время</th>
+    <th>Правильных</th>
+    <th>Всего вопросов</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="r : ${results}">
+    <td th:text="${r.topic.title}">Тема</td>
+    <td th:text="${#temporals.format(r.takenAt, 'dd.MM.yyyy HH:mm')}">15.05.2025 14:23</td>
+    <td th:text="${r.correctCount}">3</td>
+    <td th:text="${r.totalCount}">5</td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>

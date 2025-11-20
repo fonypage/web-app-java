@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Отели — HotelBooking</title>
+    <style>
+        :root {
+            --primary: #2f80ed;
+            --primary-dark: #1c64d9;
+            --accent: #f2994a;
+            --bg: #f5f7fb;
+            --text-main: #1f2933;
+            --text-muted: #6b7280;
+            --card-bg: #ffffff;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+        }
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 40px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .navbar-logo {
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+        .navbar-logo span { color: var(--accent); }
+        .navbar-links a {
+            margin-left: 16px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        .navbar-links a:hover { color: var(--primary-dark); }
+
+        .page {
+            max-width: 1100px;
+            margin: 24px auto 40px;
+            padding: 0 20px;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 16px;
+        }
+        .page-title {
+            font-size: 26px;
+            margin: 0;
+        }
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        form.search {
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+        }
+        .search input[type="text"] {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid #d1d5db;
+            font-size: 14px;
+        }
+        .btn {
+            border-radius: 999px;
+            border: none;
+            padding: 8px 18px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-primary:hover { background: var(--primary-dark); }
+
+        .hotels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 18px;
+            margin-top: 20px;
+        }
+        .hotel-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .hotel-card-img {
+            height: 150px;
+            background-size: cover;
+            background-position: center;
+        }
+        .hotel-card-body {
+            padding: 12px 14px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex-grow: 1;
+        }
+        .hotel-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .hotel-city {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .hotel-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .hotel-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+            font-size: 13px;
+        }
+        .badge-rating {
+            background: #ecfdf5;
+            color: #0f766e;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+        .hotel-card-footer {
+            padding: 0 14px 12px;
+        }
+        .hotel-card-footer a {
+            display: inline-block;
+            margin-top: 4px;
+            font-size: 13px;
+            color: var(--primary-dark);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .hotel-card-footer a:hover {
+            text-decoration: underline;
+        }
+        .no-results {
+            margin-top: 30px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+<header class="navbar">
+    <a th:href="@{/}" class="navbar-logo">
+        Hotel<span>Booking</span>
+    </a>
+    <nav class="navbar-links">
+        <a th:href="@{/admin/dashboard}">Админ-панель</a>
+    </nav>
+</header>
+
+<main class="page">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Отели</h1>
+            <p class="page-subtitle">Выберите город и найдите подходящий вариант размещения.</p>
+        </div>
+        <form class="search" th:action="@{/hotels}" method="get">
+            <input type="text" name="city" placeholder="Поиск по городу"
+                   th:value="${city}">
+            <button type="submit" class="btn btn-primary">Искать</button>
+        </form>
+    </div>
+
+    <div th:if="${#lists.isEmpty(hotels)}" class="no-results">
+        Отели не найдены. Попробуйте выбрать другой город или очистить поиск.
+    </div>
+
+    <div class="hotels-grid" th:if="${!#lists.isEmpty(hotels)}">
+        <div class="hotel-card" th:each="hotel : ${hotels}">
+            <div class="hotel-card-img"
+                 th:style="'background-image:url(' + (${hotel.imageUrl} != null ? ${hotel.imageUrl} : 'https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=1200') + ');'">
+            </div>
+            <div class="hotel-card-body">
+                <div class="hotel-name">
+                    <a th:href="@{'/hotel/' + ${hotel.id}}"
+                       th:text="${hotel.name}"
+                       style="text-decoration:none;color:inherit;"></a>
+                </div>
+                <div class="hotel-city" th:text="${hotel.city}">Город</div>
+                <div class="hotel-desc" th:text="${hotel.description}">
+                    Краткое описание отеля...
+                </div>
+                <div class="hotel-meta">
+                    <span th:if="${hotel.rating != null}" class="badge-rating"
+                          th:text="${hotel.rating + ' ★'}">4.5 ★</span>
+                    <span th:if="${hotel.rating == null}" class="hotel-meta-muted">Без рейтинга</span>
+                </div>
+            </div>
+            <div class="hotel-card-footer">
+                <a th:href="@{'/hotel/' + ${hotel.id}}">Перейти к номерам →</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
