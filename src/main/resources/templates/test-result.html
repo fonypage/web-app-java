@@ -4,94 +4,240 @@
     <meta charset="UTF-8">
     <title>Результат теста</title>
     <style>
+        :root {
+            --bg0:#060814;
+            --bg1:#0a0f2a;
+            --panel: rgba(255,255,255,.06);
+            --panel2: rgba(255,255,255,.04);
+            --border: rgba(255,255,255,.14);
+            --text: #e8ecff;
+            --muted: rgba(232,236,255,.70);
+
+            --a: #5c63ff;
+            --b: #22c55e;
+            --r: #ef4444;
+            --p: #a855f7;
+
+            --shadow: 0 22px 70px rgba(0,0,0,.55);
+            --shadow2: 0 12px 34px rgba(0,0,0,.35);
+            --radius: 22px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
-            max-width: 800px;
-            margin: auto;
-            padding: 20px;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            color: var(--text);
+            min-height: 100vh;
+            background:
+            radial-gradient(1200px 700px at 10% 10%, rgba(92,99,255,.22), transparent 60%),
+            radial-gradient(900px 520px at 90% 20%, rgba(168,85,247,.20), transparent 60%),
+            radial-gradient(1000px 600px at 65% 85%, rgba(34,197,94,.16), transparent 60%),
+            linear-gradient(180deg, var(--bg0), var(--bg1));
+            overflow-x: hidden;
         }
 
-        h1, h2 {
+        .fx {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .fx::before {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+            linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+            background-size: 52px 52px;
+            opacity: .18;
+            mask-image: radial-gradient(600px 400px at 50% 20%, #000 40%, transparent 75%);
+            transform: perspective(900px) rotateX(55deg) translateY(-120px);
+            filter: blur(.2px);
+        }
+
+        .wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 28px 20px 60px;
+        }
+
+        .hero {
+            background:
+            linear-gradient(135deg, rgba(34,197,94,.65), rgba(92,99,255,.60)),
+            url('/images/hero-practice.png') center/cover;
+            position: relative;
+            border-radius: var(--radius);
+            padding: 54px 36px;
             text-align: center;
-            color: #333;
+            margin-bottom: 26px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(20px);
+            overflow: hidden;
         }
-
-        .question-block {
-            background-color: #fff;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: conic-gradient(from 180deg, rgba(255,255,255,.2), transparent);
+            filter: blur(24px);
+            animation: spin 15s linear infinite;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .answer {
-            display: block;
-            margin: 5px 0;
-            padding: 5px 10px;
-            border-radius: 5px;
+        .hero-inner { position: relative; z-index: 1; max-width: 760px; margin: auto; }
+        .hero h1 {
+            font-size: 36px;
+            font-weight: 980;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #fff, rgba(255,255,255,.85));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
+        .hero p { color: rgba(255,255,255,.95); line-height: 1.6; }
 
-        .selected {
-            font-weight: bold;
-            border: 3px dashed #888;
-        }
-
-        .correct {
-            background-color: #d5d7d6;
-            color: #060606;
-        }
-
-        .incorrect {
-            background-color: #f8d7da;
-            color: #721c24;
+        .card {
+            background: var(--panel);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow2);
+            backdrop-filter: blur(16px);
         }
 
         .result {
             text-align: center;
-            margin: 30px 0;
-            font-size: 18px;
+            margin-bottom: 16px;
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.10);
+            border-radius: 18px;
+            padding: 14px 16px;
+            color: rgba(232,236,255,.85);
+            font-size: 16px;
+        }
+        .result b { color: #fff; }
+
+        .grid {
+            display: grid;
+            gap: 14px;
+            margin-top: 12px;
         }
 
-        a {
-            display: inline-block;
-            margin-top: 20px;
-            text-decoration: none;
-            color: #007bff;
+        .question-block {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.10);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 10px 26px rgba(0,0,0,.25);
         }
 
-        a:hover {
-            text-decoration: underline;
+        .q {
+            font-weight: 950;
+            letter-spacing: -0.2px;
+            margin-bottom: 10px;
+            color: rgba(232,236,255,.95);
         }
+
+        .answer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 14px;
+            margin: 8px 0;
+            border: 1px solid rgba(255,255,255,.10);
+            background: rgba(0,0,0,.12);
+            color: rgba(232,236,255,.80);
+        }
+
+        .answer.selected {
+            border-style: dashed;
+            border-color: rgba(232,236,255,.45);
+            font-weight: 900;
+        }
+
+        .answer.correct {
+            border-color: rgba(34,197,94,.40);
+            color: rgba(232,236,255,.92);
+        }
+
+        .answer.incorrect {
+            border-color: rgba(239,68,68,.45);
+            background: rgba(239,68,68,.12);
+            color: rgba(232,236,255,.92);
+        }
+
         .checkmark {
-            color: green;
-            font-weight: bold;
+            color: #22c55e;
+            font-weight: 950;
             margin-left: 8px;
         }
 
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 18px auto 0;
+            padding: 14px 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,.18);
+            background: rgba(255,255,255,.06);
+            color: var(--text);
+            font-weight: 950;
+            text-decoration: none;
+            backdrop-filter: blur(16px);
+            box-shadow: var(--shadow2);
+            transition: all .2s ease;
+            justify-content: center;
+            max-width: 240px;
+        }
+        .back-button:hover {
+            border-color: rgba(92,99,255,.40);
+            background: rgba(92,99,255,.10);
+            transform: translateY(-1px);
+            box-shadow: 0 20px 50px rgba(92,99,255,.20);
+        }
+
+        @media (max-width: 768px) {
+            .hero { padding: 44px 22px; }
+            .hero h1 { font-size: 30px; }
+            .card { padding: 16px; }
+        }
     </style>
 </head>
 <body>
+<div class="fx"></div>
 
-<h2>Результат тестирования</h2>
+<div class="wrap">
 
-<div class="result">
-    Правильных ответов: <b th:text="${correctCount}"></b> из <span th:text="${totalCount}"></span>
-</div>
+    <section class="hero">
+        <div class="hero-inner">
+            <h1>Результат тестирования</h1>
+            <p>Посмотри, где ошибся, и закрепи тему.</p>
+        </div>
+    </section>
 
-<div th:each="result : ${questionResults}" class="question-block">
-    <p><b th:text="${result.question.question}">Вопрос</b></p>
+    <div class="card">
+        <div class="result">
+            Правильных ответов: <b th:text="${correctCount}"></b> из <span th:text="${totalCount}"></span>
+        </div>
 
-    <div th:each="answer : ${result.question.answers}"
-         th:class="'answer ' + (${answer.id} == ${result.selectedAnswerId} ? 'selected ' : '') + (answer.correct ? 'correct' : (${answer.id} == ${result.selectedAnswerId} ? 'incorrect' : ''))">
-        <span th:text="${answer.text}"></span>
-        <span th:if="${answer.correct}" class="checkmark">✓</span>
+        <div class="grid">
+            <div th:each="result : ${questionResults}" class="question-block">
+                <div class="q" th:text="${result.question.question}">Вопрос</div>
+
+                <div th:each="answer : ${result.question.answers}"
+                     th:class="'answer ' + (${answer.id} == ${result.selectedAnswerId} ? 'selected ' : '') + (answer.correct ? 'correct' : (${answer.id} == ${result.selectedAnswerId} ? 'incorrect' : ''))">
+                    <span th:text="${answer.text}">Ответ</span>
+                    <span th:if="${answer.correct}" class="checkmark">✓</span>
+                </div>
+            </div>
+        </div>
+
+        <a th:href="@{/}" class="back-button">← Назад на главную</a>
     </div>
-</div>
 
-<div class="result">
-    <a th:href="@{/theory}">← Назад к темам</a>
 </div>
-
 </body>
 </html>

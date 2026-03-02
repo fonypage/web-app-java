@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface TestResultRepository extends JpaRepository<TestResult, Long> {
     List<TestResult> findByUsername(String username);
+    List<TestResult> findByUsernameOrderByIdDesc(String username);
 }
 

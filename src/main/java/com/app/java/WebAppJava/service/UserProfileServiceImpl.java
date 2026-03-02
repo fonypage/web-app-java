@@ -1,0 +1,255 @@
+package com.app.java.WebAppJava.service;
+
+import com.app.java.WebAppJava.dto.AchievementDto;
+import com.app.java.WebAppJava.dto.MistakeDto;
+import com.app.java.WebAppJava.dto.UserProfileSummaryDto;
+import com.app.java.WebAppJava.model.*;
+import com.app.java.WebAppJava.repository.TestResultDetailRepository;
+import com.app.java.WebAppJava.repository.TestResultRepository;
+import com.app.java.WebAppJava.repository.UserProfileRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.app.java.WebAppJava.dto.TopicProgressDto;
+import com.app.java.WebAppJava.repository.TopicRepository;
+
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+public class UserProfileServiceImpl implements UserProfileService {
+
+    private final UserProfileRepository userProfileRepository;
+    private final TestResultRepository testResultRepository;
+    private final TopicRepository topicRepository;
+    private final TestResultDetailRepository testResultDetailRepository;
+
+    public UserProfileServiceImpl(UserProfileRepository userProfileRepository,
+                                  TestResultRepository testResultRepository,
+                                  TopicRepository topicRepository,
+                                  TestResultDetailRepository testResultDetailRepository) {
+        this.userProfileRepository = userProfileRepository;
+        this.testResultRepository = testResultRepository;
+        this.topicRepository = topicRepository;
+        this.testResultDetailRepository = testResultDetailRepository;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserProfileSummaryDto getSummary(String username) {
+        UserProfile profile = userProfileRepository.findById(username)
+                .orElseGet(() -> userProfileRepository.save(new UserProfile(username)));
+
+        List<TestResult> results = testResultRepository.findByUsernameOrderByIdDesc(username);
+
+        Map<Long, String> topicTitleById = topicRepository.findAll().stream()
+                .collect(Collectors.toMap(Topic::getId, Topic::getTitle));
+
+        List<TopicProgressDto> topicProgress = buildTopicProgress(results, topicTitleById);
+
+        int masteredTopicsCount = (int) topicProgress.stream().filter(TopicProgressDto::isMastered).count();
+        int totalTopics = topicTitleById.size();
+
+        List<MistakeDto> lastMistakes = buildLastMistakes(username, topicTitleById, 5);
+
+        int totalTests = results.size();
+
+        // проценты по попыткам
+        List<Integer> percents = results.stream()
+                .map(this::percent)
+                .collect(Collectors.toList());
+
+
+        int bestPercent = percents.stream().max(Integer::compareTo).orElse(0);
+        int avgPercent = percents.isEmpty() ? 0 : (int) Math.round(percents.stream().mapToInt(x -> x).average().orElse(0));
+
+        // XP: 10 * correct + бонус за 100% (+50)
+        int xp = results.stream().mapToInt(r -> (safeCorrect(r) * 10) + (percent(r) == 100 ? 50 : 0)).sum();
+
+        // уровни: каждые 500 XP — новый уровень
+        int level = 1 + (xp / 500);
+        int xpToNextLevel = 500 - (xp % 500);
+        if (xpToNextLevel == 500) xpToNextLevel = 0;
+
+        // streak: подряд идущие дни с тестами
+        int streakDays = computeStreakDays(results);
+
+        // достижения (вычисляемые)
+        List<AchievementDto> achievements = buildAchievements(results, totalTests, bestPercent, streakDays);
+
+        return new UserProfileSummaryDto(
+                username,
+                profile.getInstitution(),
+                totalTests,
+                bestPercent,
+                avgPercent,
+                xp,
+                level,
+                xpToNextLevel,
+                streakDays,
+                achievements,
+                topicProgress,
+                masteredTopicsCount,
+                totalTopics,
+                lastMistakes
+        );
+    }
+
+    @Override
+    @Transactional
+    public void updateInstitution(String username, String institution) {
+        UserProfile profile = userProfileRepository.findById(username)
+                .orElseGet(() -> new UserProfile(username));
+        profile.setInstitution(normalizeInstitution(institution));
+        userProfileRepository.save(profile);
+    }
+
+    private String normalizeInstitution(String s) {
+        if (s == null) return null;
+        String v = s.trim();
+        return v.isEmpty() ? null : v;
+    }
+
+    private int percent(TestResult r) {
+        int total = safeTotal(r);
+        if (total <= 0) return 0;
+        return (int) Math.round((safeCorrect(r) * 100.0) / total);
+    }
+
+    private int safeCorrect(TestResult r) {
+        return r.getCorrectCount();
+    }
+
+    private int safeTotal(TestResult r) {
+        return r.getTotalCount();
+    }
+
+    private int computeStreakDays(List<TestResult> results) {
+        // ВАЖНО: тут нужен “дата прохождения теста”.
+        // Если у TestResult есть createdAt/finishedAt (Date/LocalDateTime) — подстрой метод toLocalDate(...) ниже.
+        // Если даты нет — скажи, и мы добавим её миграцией (это лучше).
+
+        Set<LocalDate> days = results.stream()
+                .map(this::toLocalDateSafe)  // если вернёт null — фильтруем
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(TreeSet::new)); // отсортировано по возрастанию
+
+        if (days.isEmpty()) return 0;
+
+        // streak считаем от "сегодня" или от последнего дня активности (так мягче)
+        LocalDate current = ((TreeSet<LocalDate>) days).last();
+        int streak = 0;
+
+        while (days.contains(current)) {
+            streak++;
+            current = current.minusDays(1);
+        }
+        return streak;
+    }
+
+    private LocalDate toLocalDateSafe(TestResult r) {
+        return r.getTimestamp() == null ? null : r.getTimestamp().toLocalDate();
+    }
+
+    private List<AchievementDto> buildAchievements(List<TestResult> results, int totalTests, int bestPercent, int streakDays) {
+        // “Освоение темы” считаем как наличие попытки >= 80% по теме
+        // (topicId/Topic берём из TestResult — подстрой если поле иначе)
+        Set<Long> masteredTopics = results.stream()
+                .filter(r -> percent(r) >= 80)
+                .map(this::topicIdSafe)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        boolean firstTest = totalTests >= 1;
+        boolean tenTests = totalTests >= 10;
+        boolean perfect = bestPercent == 100;
+        boolean streak3 = streakDays >= 3;
+        boolean fiveTopics = masteredTopics.size() >= 5;
+
+        return List.of(
+                new AchievementDto("FIRST_TEST", "🏁 Первый тест", "Пройди 1 тест", firstTest),
+                new AchievementDto("PERFECT", "🎯 Идеальный результат", "Получи 100% хотя бы раз", perfect),
+                new AchievementDto("TEN_TESTS", "🧠 10 тестов", "Пройди 10 тестов", tenTests),
+                new AchievementDto("STREAK_3", "🔥 Серия 3 дня", "Проходи тесты 3 дня подряд", streak3),
+                new AchievementDto("MASTER_5_TOPICS", "⭐ 5 тем освоено", "Набери ≥80% в 5 разных темах", fiveTopics)
+        );
+    }
+
+    private List<TopicProgressDto> buildTopicProgress(List<TestResult> results, Map<Long, String> topicTitleById) {
+        if (results == null || results.isEmpty()) return List.of();
+
+        Map<Long, List<TestResult>> byTopic = results.stream()
+                .filter(r -> topicIdSafe(r) != null)
+                .collect(Collectors.groupingBy(this::topicIdSafe));
+
+        List<TopicProgressDto> list = new ArrayList<>();
+
+        for (Map.Entry<Long, List<TestResult>> e : byTopic.entrySet()) {
+            Long topicId = e.getKey();
+            List<TestResult> topicResults = e.getValue();
+
+            int attempts = topicResults.size();
+
+            List<Integer> percents = topicResults.stream().map(this::percent).collect(Collectors.toList());
+            int best = percents.stream().max(Integer::compareTo).orElse(0);
+            int avg = percents.isEmpty() ? 0 : (int) Math.round(percents.stream().mapToInt(x -> x).average().orElse(0));
+
+            var lastAttempt = topicResults.stream()
+                    .map(TestResult::getTimestamp)
+                    .filter(Objects::nonNull)
+                    .max(Comparator.naturalOrder())
+                    .orElse(null);
+
+            boolean mastered = best >= 80;
+
+            String title = topicTitleById.getOrDefault(topicId, "Тема #" + topicId);
+
+            list.add(new TopicProgressDto(topicId, title, attempts, best, avg, lastAttempt, mastered));
+        }
+
+        // сорт: сначала освоенные, потом лучший %, потом последнее прохождение
+        list.sort(Comparator
+                .comparing(TopicProgressDto::isMastered).reversed()
+                .thenComparing(TopicProgressDto::getBestPercent, Comparator.reverseOrder())
+                .thenComparing(tp -> tp.getLastAttempt() == null ? java.time.LocalDateTime.MIN : tp.getLastAttempt(), Comparator.reverseOrder())
+        );
+
+        return list;
+    }
+
+    private List<MistakeDto> buildLastMistakes(String username, Map<Long, String> topicTitleById, int limit) {
+        List<TestResultDetail> details = testResultDetailRepository.findLastMistakes(username);
+        if (details == null || details.isEmpty()) return List.of();
+
+        List<MistakeDto> list = new ArrayList<>();
+
+        for (TestResultDetail d : details) {
+            if (list.size() >= limit) break;
+
+            TestResult tr = d.getResult();
+            Long topicId = tr.getTopicId(); // важно: чтобы в TestResult было поле topicId
+            String topicTitle = topicTitleById.getOrDefault(topicId, "Тема #" + topicId);
+
+            String questionText = d.getQuestion() != null ? d.getQuestion().getQuestion() : "Вопрос";
+            String selected = d.getSelectedAnswer() != null ? d.getSelectedAnswer().getText() : "—";
+
+            // найти правильный ответ (в Question есть answers)
+            String correctAnswer = "—";
+            if (d.getQuestion() != null && d.getQuestion().getAnswers() != null) {
+                for (Answer a : d.getQuestion().getAnswers()) {
+                    if (a.isCorrect()) { correctAnswer = a.getText(); break; }
+                }
+            }
+
+            list.add(new MistakeDto(topicId, topicTitle, questionText, selected, correctAnswer, tr.getTimestamp()));
+        }
+
+        return list;
+    }
+
+    private Long topicIdSafe(TestResult r) {
+        return r.getTopicId();
+    }
+}
