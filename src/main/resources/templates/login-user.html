@@ -2,151 +2,227 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Вход пользователя</title>
+    <title>Вход пользователя • Java Learning</title>
     <style>
-        /* фон страницы */
+        :root {
+            --bg0:#060814;
+            --bg1:#0a0f2a;
+            --panel: rgba(255,255,255,.06);
+            --panel2: rgba(255,255,255,.04);
+            --border: rgba(255,255,255,.14);
+            --text: #e8ecff;
+            --muted: rgba(232,236,255,.70);
+            --a: #5c63ff;
+            --b: #22c55e;
+            --c: #f59e0b;
+            --p: #a855f7;
+            --r: #ef4444;
+            --shadow: 0 22px 70px rgba(0,0,0,.55);
+            --shadow2: 0 12px 34px rgba(0,0,0,.35);
+            --radius: 22px;
+        }
+
+        * {box-sizing:border-box; margin:0; padding:0;}
         body {
-            margin: 0;
-            padding: 0;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background: #e0f7fa;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #004d40;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            color: var(--text);
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:
+            radial-gradient(1200px 700px at 10% 10%, rgba(92,99,255,.22), transparent 60%),
+            radial-gradient(900px 520px at 90% 20%, rgba(168,85,247,.20), transparent 60%),
+            radial-gradient(1000px 600px at 65% 85%, rgba(34,197,94,.16), transparent 60%),
+            linear-gradient(180deg, var(--bg0), var(--bg1));
+            overflow:hidden;
+            padding:24px;
         }
 
-        /* контейнер формы */
-        .login-box {
-            background-color: #ffffff;
-            padding: 50px 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            max-width: 380px;
-            width: 100%;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+        .fx {
+            position:fixed; inset:0; pointer-events:none; z-index:-1;
         }
-        .login-box::before {
-            content: "";
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at center, rgba(3,155,229,0.3) 0%, transparent 70%);
-            transform: rotate(45deg);
-        }
-        .login-box * {
-            position: relative;
-            z-index: 1;
+        .fx::before {
+            content:"";
+            position:absolute; inset:0;
+            background:
+            linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+            background-size:52px 52px;
+            opacity:.18;
+            mask-image: radial-gradient(600px 400px at 50% 20%, #000 40%, transparent 75%);
+            transform:perspective(900px) rotateX(55deg) translateY(-120px);
+            filter:blur(.2px);
         }
 
-        /* логотип */
-        .login-box .logo img {
-            width: 70px;
-            margin-bottom: 16px;
+        .card {
+            width:min(420px,92vw);
+            background:var(--panel);
+            border:1px solid var(--border);
+            border-radius:var(--radius);
+            box-shadow:var(--shadow);
+            backdrop-filter:blur(18px);
+            padding:28px;
+            position:relative;
+            overflow:hidden;
         }
 
-        /* заголовок */
-        .login-box h2 {
-            margin-bottom: 28px;
-            color: #004d40;
-            font-size: 1.8rem;
-            letter-spacing: 1px;
+        .card::before {
+            content:"";
+            position:absolute; inset:-2px;
+            background:conic-gradient(
+            from 180deg,
+            rgba(92,99,255,.28),
+            rgba(168,85,247,.22),
+            rgba(34,197,94,.20),
+            rgba(245,158,11,.18),
+            rgba(92,99,255,.28)
+            );
+            filter:blur(22px);
+            opacity:.45;
+            animation:spin 10s linear infinite;
+        }
+        @keyframes spin {to{transform:rotate(360deg);} }
+
+        .brand {
+            display:flex;
+            align-items:center;
+            gap:10px;
+            margin-bottom:18px;
+        }
+        .logo {
+            width:42px; height:42px;
+            border-radius:16px;
+            background:linear-gradient(135deg, var(--a), var(--p));
+            display:flex; align-items:center; justify-content:center;
+            font-weight:950;
+            color:#fff;
+            box-shadow:0 14px 28px rgba(92,99,255,.25);
+        }
+        .title {
+            font-weight:950; letter-spacing:-0.3px; line-height:1.1;
+        }
+        .subtitle {
+            font-size:12px; color:var(--muted);
         }
 
-        /* поля */
-        .form-group {
-            margin-bottom: 24px;
-            text-align: left;
-            position: relative;
+        .headline {
+            margin:12px 0 8px;
+            font-size:22px;
+            font-weight:980;
+            letter-spacing:-0.5px;
         }
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            color: #00796b;
-            font-size: 0.9rem;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 14px 12px;
-            border: 1px solid #b2dfdb;
-            border-radius: 8px;
-            background: #f1f8e9;
-            color: #004d40;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.3s, background 0.3s;
-        }
-        .form-group input::placeholder {
-            color: #00796b;
-            opacity: 0.8;
-        }
-        .form-group input:focus {
-            border-color: #004d40;
-            background: #e0f2f1;
-        }
-        .form-group .icon {
-            position: absolute;
-            top: 38px;
-            right: 12px;
-            width: 22px;
-            opacity: 0.7;
+        .desc {
+            color:var(--muted);
+            font-size:14px;
+            line-height:1.6;
+            margin-bottom:16px;
         }
 
-        /* кнопка */
-        button {
-            width: 100%;
-            padding: 16px;
-            background-color: #00796b;
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.3s, transform 0.2s;
+        form {display:flex; flex-direction:column; gap:14px;}
+
+        .field {
+            position:relative;
+            padding:12px;
+            border-radius:18px;
+            border:1px solid rgba(255,255,255,.12);
+            background:rgba(0,0,0,.14);
         }
-        button:hover {
-            background-color: #004d40;
-            transform: translateY(-2px);
+        .field label {
+            display:block;
+            font-size:12px;
+            font-weight:850;
+            color:rgba(232,236,255,.75);
+            margin-bottom:8px;
         }
-        button:active {
-            transform: translateY(0);
+        .field input {
+            width:100%;
+            border:none;
+            outline:none;
+            background:transparent;
+            color:var(--text);
+            font-size:15px;
+            padding-right:36px;
+        }
+        .field input::placeholder {color:rgba(232,236,255,.45);}
+        .icon {
+            position:absolute;
+            right:14px;
+            top:50%;
+            transform:translateY(6px);
+            width:20px;
+            opacity:.75;
+            filter:drop-shadow(0 0 10px rgba(92,99,255,.35));
         }
 
-        /* подсказка */
+        /* МЯГКАЯ кнопка входа */
+        .submit {
+            margin-top:4px;
+            width:100%;
+            border:1px solid rgba(255,255,255,.20);
+            border-radius:16px;
+            padding:14px 16px;
+            cursor:pointer;
+            font-weight:950;
+            color:var(--text);
+            background:rgba(255,255,255,.08);
+            backdrop-filter:blur(14px);
+            box-shadow:var(--shadow2);
+            transition:all .2s ease;
+        }
+        .submit:hover {
+            border-color:rgba(92,99,255,.40);
+            background:rgba(92,99,255,.12);
+            transform:translateY(-1px);
+            box-shadow:0 18px 44px rgba(92,99,255,.22);
+        }
+
         .note {
-            margin-top: 20px;
-            font-size: 0.85rem;
-            color: #00796b;
+            margin-top:14px;
+            font-size:12px;
+            color:var(--muted);
+            background:rgba(0,0,0,.10);
+            border:1px solid rgba(255,255,255,.08);
+            padding:10px 12px;
+            border-radius:16px;
+            text-align:center;
+        }
+
+        @media (max-width: 420px){
+            .brand{ flex-direction:column; align-items:flex-start; text-align:left; }
         }
     </style>
 </head>
 <body>
-<div class="login-box">
-    <div class="logo">
-        <img th:src="@{/images/logo-user.png}" alt="User Logo">
+<div class="fx"></div>
+
+<div class="card">
+    <div class="brand">
+        <div class="logo">J</div>
+        <div>
+            <div class="title">Java Learning</div>
+            <div class="subtitle">Пользовательский доступ</div>
+        </div>
     </div>
-    <h2>Пользовательский доступ</h2>
+
+    <div class="headline">Вход в систему</div>
+    <div class="desc">Введите свои учётные данные, чтобы продолжить обучение и доступ к материалам.</div>
+
     <form th:action="@{/login-user}" method="post">
-        <div class="form-group">
+        <div class="field">
             <label for="username">Имя пользователя</label>
             <input type="text" id="username" name="username" placeholder="Ваш логин" required>
-            <img class="icon" th:src="@{/images/icon-login-user.png}" alt="User Icon">
         </div>
-        <div class="form-group">
+
+        <div class="field">
             <label for="password">Пароль</label>
             <input type="password" id="password" name="password" placeholder="Ваш пароль" required>
-            <img class="icon" th:src="@{/images/icon-user-lock.png}" alt="Lock Icon">
         </div>
-        <button type="submit">Войти</button>
+
+        <button class="submit" type="submit">Войти</button>
     </form>
-    <div class="note">Пожалуйста, используйте учётные данные пользователя</div>
+
+    <div class="note">Доступ только для пользователя (user/user)</div>
 </div>
 </body>
 </html>

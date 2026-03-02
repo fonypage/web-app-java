@@ -2,176 +2,530 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Платформа для изучения Java</title>
+  <title>Java Learning</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; color: #333; }
-    a { text-decoration: none; color: inherit; }
+    :root{
+      --bg0:#060814;
+      --bg1:#0a0f2a;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.04);
+      --border: rgba(255,255,255,.14);
+      --text: #e8ecff;
+      --muted: rgba(232,236,255,.70);
 
-    /* Кнопка Админ */
-    .admin-button {
-      position: fixed;
-      top: 24px;
-      right: 20px;
-      background-color: #555;
-      padding: 6px 12px;
-      border-radius: 5px;
-      color: white;
-      font-size: 0.8rem;
-    }
-    .admin-button:hover {
-      background-color: #777;
+      --a: #5c63ff;   /* primary */
+      --b: #22c55e;   /* green */
+      --c: #f59e0b;   /* amber */
+      --p: #a855f7;   /* purple */
+      --r: #ef4444;   /* red */
+
+      --shadow: 0 22px 70px rgba(0,0,0,.55);
+      --shadow2: 0 12px 34px rgba(0,0,0,.35);
+      --radius: 22px;
     }
 
-    /* Контейнер для кнопок аккаунта */
-    .account-btns {
-      position: fixed;
-      top: 15px;     /* равный отступ сверху с .admin-button */
-      right: 100px;  /* подвиньте по горизонтали при необходимости */
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    body{
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      min-height:100vh;
+      overflow-x:hidden;
+      background:
+      radial-gradient(1200px 700px at 10% 10%, rgba(92,99,255,.22), transparent 60%),
+      radial-gradient(900px 520px at 90% 20%, rgba(168,85,247,.20), transparent 60%),
+      radial-gradient(1000px 600px at 65% 85%, rgba(34,197,94,.16), transparent 60%),
+      linear-gradient(180deg, var(--bg0), var(--bg1));
     }
-    .account-btns .btn,
-    .account-btns form button {
-      margin-left: 8px;
-      background-color: #007bff;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 5px;
-      font-size: 0.8rem;
+    a{ text-decoration:none; color:inherit; }
+
+    /* animated grid + noise */
+    .fx{
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      z-index:-1;
+    }
+    .fx::before{
+      content:'';
+      position:absolute; inset:0;
+      background:
+      linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 52px 52px;
+      opacity:.18;
+      mask-image: radial-gradient(600px 400px at 50% 20%, #000 40%, transparent 75%);
+      transform: perspective(900px) rotateX(55deg) translateY(-120px);
+      filter: blur(.2px);
+    }
+    .fx::after{
+      content:'';
+      position:absolute; inset:-80px;
+      background:
+      radial-gradient(400px 220px at 15% 20%, rgba(92,99,255,.18), transparent 60%),
+      radial-gradient(420px 240px at 85% 25%, rgba(168,85,247,.16), transparent 60%),
+      radial-gradient(460px 260px at 60% 90%, rgba(34,197,94,.12), transparent 60%);
+      filter: blur(28px);
+      opacity: .95;
+      animation: drift 10s ease-in-out infinite alternate;
+    }
+    @keyframes drift{
+      from { transform: translate3d(-12px, -10px, 0) scale(1.02); }
+      to   { transform: translate3d(12px, 10px, 0) scale(1.05); }
+    }
+
+    .wrap{
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    /* topbar */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom: 18px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow2);
+    }
+    .logo{
+      width: 38px; height: 38px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(92,99,255,1), rgba(168,85,247,1));
+      box-shadow: 0 14px 28px rgba(92,99,255,.25);
+      display:flex; align-items:center; justify-content:center;
+      font-weight: 950;
+      letter-spacing: -0.5px;
+    }
+    .brand .t1{ font-weight: 950; letter-spacing:-.2px; }
+    .brand .t2{ font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap: wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow2);
+      font-weight: 850;
+      cursor:pointer;
+      transition: transform .15s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+    .pill:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,.22);
+      background: rgba(255,255,255,.08);
+      box-shadow: 0 16px 42px rgba(0,0,0,.36);
+    }
+    .pill.primary{
       border: none;
+      background: linear-gradient(135deg, rgba(92,99,255,1), rgba(34,197,94,.90));
+      box-shadow: 0 18px 44px rgba(92,99,255,.22);
+    }
+    .pill.admin{
+      background: rgba(0,0,0,.30);
+      border-color: rgba(255,255,255,.12);
+    }
+    .pill.danger{
+      border:none;
+      background: linear-gradient(135deg, rgba(239,68,68,1), rgba(245,158,11,1));
+      box-shadow: 0 18px 44px rgba(239,68,68,.18);
+    }
+    .pill.secondary{
+      background: rgba(255,255,255,.07);
+    }
+    .pill button{
+      all: unset;
       cursor: pointer;
-      line-height: 1; /* чтобы вертикально центрировать текст */
-    }
-    .account-btns .btn:hover,
-    .account-btns form button:hover {
-      background-color: #0056b3;
-    }
-    .account-btns form {
-      display: inline;
+      font: inherit;
+      color: inherit;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
     }
 
-    /* Остальная стилизация страницы */
-    .hero {
-      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
-      url('/images/hero-bg.png') center/cover no-repeat;
-      height: 70vh;
-      display: flex;
+    /* hero */
+    .hero{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .panel{
+      position: relative;
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: var(--radius);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel::before{
+      content:'';
+      position:absolute; inset:-2px;
+      background: conic-gradient(from 180deg,
+      rgba(92,99,255,.28),
+      rgba(168,85,247,.22),
+      rgba(34,197,94,.20),
+      rgba(245,158,11,.18),
+      rgba(92,99,255,.28));
+      filter: blur(22px);
+      opacity: .45;
+      animation: spin 9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .panel > *{ position: relative; z-index: 1; }
+
+    .hero-left{ padding: 34px; min-height: 360px; }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      color: rgba(232,236,255,.78);
+      font-weight: 850;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    .h1{
+      font-size: 46px;
+      line-height: 1.05;
+      letter-spacing: -1.2px;
+      font-weight: 980;
+      margin-bottom: 14px;
+    }
+    .h1 .grad{
+      background: linear-gradient(135deg, #c7d2fe, #ffffff, #d8b4fe);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color: transparent;
+      background-clip:text;
+    }
+    .lead{
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.75;
+      max-width: 62ch;
+      margin-bottom: 20px;
+    }
+
+    .cta{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      font-weight: 900;
+      box-shadow: var(--shadow2);
+      transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,.22);
+      background: rgba(255,255,255,.09);
+      box-shadow: 0 18px 46px rgba(0,0,0,.38);
+    }
+    .btn.primary{
+      border: none;
+      background: linear-gradient(135deg, rgba(92,99,255,1), rgba(168,85,247,1));
+      box-shadow: 0 22px 58px rgba(92,99,255,.22);
+    }
+    .btn.primary:hover{ box-shadow: 0 26px 70px rgba(92,99,255,.26); }
+
+    .metrics{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .metric{
+      flex: 1 1 150px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.14);
+    }
+    .metric .k{ font-size: 12px; color: rgba(232,236,255,.70); }
+    .metric .v{ font-size: 18px; font-weight: 950; margin-top: 6px; }
+
+    /* right panel: "stack cards" */
+    .hero-right{
+      padding: 18px;
+      display:flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      color: white;
-      padding: 0 20px;
+      gap: 12px;
+      min-height: 360px;
+      background: var(--panel2);
     }
-    .hero h1 { font-size: 3rem; margin-bottom: 20px; }
-    .hero p { font-size: 1.2rem; margin-bottom: 30px; max-width: 600px; }
-    .btn { display: inline-block; padding: 15px 40px; margin:10px; font-size: 1rem;
-      background-color: #4CAF50; border-radius: 8px; transition: background 0.2s; color: white;
+    .stack{
+      position: relative;
+      flex: 1;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.10);
+      overflow:hidden;
     }
-    .btn:hover { background-color: #43a047; }
+    .stack::before{
+      content:'';
+      position:absolute; inset:0;
+      background:
+      radial-gradient(360px 220px at 30% 25%, rgba(92,99,255,.18), transparent 60%),
+      radial-gradient(360px 220px at 75% 35%, rgba(168,85,247,.16), transparent 60%),
+      radial-gradient(420px 240px at 60% 80%, rgba(34,197,94,.12), transparent 60%);
+      opacity: .95;
+      filter: blur(14px);
+    }
 
-    .features {
-      display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;
-      padding: 60px 20px; background: #f9f9f9;
+    .tile{
+      position:absolute;
+      left: 14px;
+      right: 14px;
+      padding: 14px 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 16px 44px rgba(0,0,0,.35);
+      display:flex;
+      align-items:flex-start;
+      gap: 12px;
+      transform-origin: center;
+      animation: float 3.8s ease-in-out infinite;
     }
-    .feature-card {
-      background: white; border-radius: 8px; padding: 30px; width: 280px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center;
+    .tile:nth-child(1){ top: 18px; transform: rotate(-2deg); }
+    .tile:nth-child(2){ top: 120px; transform: rotate(1.2deg); animation-delay: .6s; }
+    .tile:nth-child(3){ top: 222px; transform: rotate(-1.5deg); animation-delay: 1.2s; }
+
+    @keyframes float{
+      0%,100% { transform: translateY(0) rotate(var(--rdeg,0deg)); }
+    50%     { transform: translateY(-6px) rotate(var(--rdeg,0deg)); }
     }
-    .feature-card img { width: 60px; margin-bottom: 20px; }
-    .feature-card h3 { margin-bottom: 10px; }
-    .feature-card p { font-size: 0.95rem; color: #555; }
 
-    .steps { padding: 60px 20px; text-align: center; }
-    .steps h2 { margin-bottom: 40px; }
-    .step { display: inline-block; width: 180px; margin: 0 20px; }
-    .step img { width: 50px; margin-bottom: 15px; }
-    .step h4 { margin-bottom: 8px; }
+    .tile .ic{
+      width: 42px; height: 42px;
+      border-radius: 14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 950;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+    }
+    .tile .ic.a{ box-shadow: 0 0 0 1px rgba(92,99,255,.22), 0 0 24px rgba(92,99,255,.25); }
+    .tile .ic.b{ box-shadow: 0 0 0 1px rgba(34,197,94,.20), 0 0 24px rgba(34,197,94,.20); }
+    .tile .ic.c{ box-shadow: 0 0 0 1px rgba(245,158,11,.18), 0 0 24px rgba(245,158,11,.18); }
 
-    footer {
-      background: #333; color: white; text-align: center; padding: 20px; font-size: 0.9rem;
+    .tile h3{
+      font-size: 15px;
+      font-weight: 950;
+      margin-bottom: 6px;
+    }
+    .tile p{
+      font-size: 13px;
+      color: rgba(232,236,255,.70);
+      line-height: 1.55;
+    }
+
+    /* sections */
+    .section{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .card{
+      padding: 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow2);
+      transition: transform .15s ease, background .2s ease, border-color .2s ease;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      background: rgba(255,255,255,.07);
+      border-color: rgba(255,255,255,.18);
+    }
+    .card .ic{
+      width: 44px; height: 44px;
+      border-radius: 16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 950;
+      margin-bottom: 10px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.14);
+    }
+    .card h3{ font-size: 16px; font-weight: 950; margin-bottom: 6px; }
+    .card p{ color: var(--muted); line-height: 1.65; font-size: 14px; }
+
+    footer{
+      margin-top: 18px;
+      text-align:center;
+      color: rgba(232,236,255,.55);
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px){
+      .hero{ grid-template-columns: 1fr; }
+      .section{ grid-template-columns: 1fr; }
+      .h1{ font-size: 38px; }
+      .hero-left{ padding: 26px; }
+      .hero-right{ min-height: 300px; }
     }
   </style>
 </head>
 <body>
+<div class="fx"></div>
 
-<!-- Кнопка Админ -->
-<a href="/admin/dashboard" class="admin-button">Админ</a>
+<div class="wrap">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">J</div>
+      <div>
+        <div class="t1">Java Learning</div>
+        <div class="t2">теория • практика • тесты</div>
+      </div>
+    </div>
 
-<!-- Кнопки аккаунта -->
-<div class="account-btns">
-  <!-- Для залогиненного Админа -->
-  <div th:if="${#request.isUserInRole('ADMIN')}">
-    <form th:action="@{/logout}" method="post">
-      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-      <button type="submit" class="btn">Выйти (Admin)</button>
-    </form>
+    <div class="actions">
+      <a href="/admin/dashboard" class="pill admin">Админ</a>
+
+      <div th:if="${#request.isUserInRole('ADMIN')}">
+        <form th:action="@{/logout}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <button type="submit" class="pill danger">Выйти (Admin)</button>
+        </form>
+      </div>
+
+      <div th:if="${#request.isUserInRole('USER')}">
+        <form th:action="@{/logout-user}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <button type="submit" class="pill secondary">Выйти</button>
+        </form>
+      </div>
+
+      <div th:unless="${#httpServletRequest.remoteUser != null}">
+        <a th:href="@{/login-user}" class="pill primary">Войти</a>
+      </div>
+    </div>
   </div>
 
-  <!-- Для залогиненного пользователя -->
-  <div th:if="${#request.isUserInRole('USER')}">
-    <a th:href="@{/my-tests}" class="btn">Мои тесты</a>
-    <form th:action="@{/logout-user}" method="post">
-      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-      <button type="submit" class="btn">Выйти</button>
-    </form>
+  <!-- Hero -->
+  <div class="hero">
+    <div class="panel hero-left">
+      <div class="tag">⚡ Интерактивная платформа обучения</div>
+
+      <div class="h1">Изучи <span>Java</span> красиво и по делу</div>
+      <div class="lead">
+        Теория — чистая и структурная. Практика — чтобы закреплять. Тесты — чтобы видеть прогресс.
+        Всё в одном месте — удобно и мотивирует.
+      </div>
+
+      <div class="cta">
+        <a th:href="@{/theory}" class="btn primary">📘 Теория</a>
+        <a th:href="@{/practice}" class="btn">🧩 Практика</a>
+        <a th:if="${#request.isUserInRole('USER')}" th:href="@{/my-tests}" class="btn">🏆 Профиль</a>
+      </div>
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="k">Формат</div>
+          <div class="v">Короткие темы</div>
+        </div>
+        <div class="metric">
+          <div class="k">Проверка</div>
+          <div class="v">Тесты сразу</div>
+        </div>
+        <div class="metric">
+          <div class="k">Мотивация</div>
+          <div class="v">XP и серия</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel hero-right">
+      <div class="stack">
+        <div class="tile" style="--rdeg:-2deg;">
+          <div class="ic a">📘</div>
+          <div>
+            <h3>Теория</h3>
+            <p>Материал в одном стиле, короткие блоки и понятные примеры.</p>
+          </div>
+        </div>
+        <div class="tile" style="--rdeg:1.2deg;">
+          <div class="ic b">🧩</div>
+          <div>
+            <h3>Практика</h3>
+            <p>Задания для закрепления — чтобы знания стали навыком.</p>
+          </div>
+        </div>
+        <div class="tile" style="--rdeg:-1.5deg;">
+          <div class="ic c">🏆</div>
+          <div>
+            <h3>Тесты и прогресс</h3>
+            <p>Результаты сохраняются: уровень, серия дней, достижения.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Если не залогинен -->
-  <div th:unless="${#httpServletRequest.remoteUser != null}">
-    <a th:href="@{/login-user}" class="btn">Войти</a>
+  <!-- Cards -->
+  <div class="section">
+    <div class="card">
+      <div class="ic">🧠</div>
+      <h3>Понятно</h3>
+      <p>Структура и стиль не “скачут”. Учиться комфортно и быстро.</p>
+    </div>
+    <div class="card">
+      <div class="ic">⚙️</div>
+      <h3>Практично</h3>
+      <p>Тесты и практика после темы — меньше забывается, больше закрепляется.</p>
+    </div>
+    <div class="card">
+      <div class="ic">✨</div>
+      <h3>Мотивирует</h3>
+      <p>XP, уровень, серия дней — хочется закрывать темы дальше.</p>
+    </div>
   </div>
+
+  <footer>© 2025 Платформа для изучения Java. Все права защищены.</footer>
 </div>
-
-<!-- Hero -->
-<section class="hero">
-  <h1>Изучи Java легко и интересно</h1>
-  <p>Полный курс от простых основ синтаксиса до продвинутых тем с интерактивными тестами и практическими заданиями.</p>
-  <a th:href="@{/theory}" class="btn">Начать учить</a>
-  <a th:href="@{/practice}" class="btn">Попрактиковаться</a>
-</section>
-
-<!-- Преимущества -->
-<section class="features">
-  <div class="feature-card">
-    <img th:src="@{/images/icon-theory.png}" alt="Теория">
-    <h3>Глубокая теория</h3>
-    <p>Понятные объяснения, наглядные примеры и иллюстрации для лёгкого усвоения материала.</p>
-  </div>
-  <div class="feature-card">
-    <img th:src="@{/images/icon-practice.png}" alt="Практика">
-    <h3>Практические задачи</h3>
-    <p>Решайте реальные кейсы и сразу проверяйте свои знания через встроенные тесты.</p>
-  </div>
-  <div class="feature-card">
-    <img th:src="@{/images/icon-test.png}" alt="Тесты">
-    <h3>Моментальная проверка</h3>
-    <p>Автоматическое тестирование кода и подробный разбор ошибок.</p>
-  </div>
-</section>
-
-<!-- Как это работает -->
-<section class="steps">
-  <h2>Как это работает</h2>
-  <div class="step">
-    <img th:src="@{/images/icon-step1.png}" alt="Шаг 1">
-    <h4>1. Выберите тему</h4>
-    <p>Перейдите в раздел «Теория» и выберите интересующую вас тему.</p>
-  </div>
-  <div class="step">
-    <img th:src="@{/images/icon-step2.png}" alt="Шаг 2">
-    <h4>2. Прочитайте материал</h4>
-    <p>Изучите теорию с примерами и иллюстрациями.</p>
-  </div>
-  <div class="step">
-    <img th:src="@{/images/icon-step3.png}" alt="Шаг 3">
-    <h4>3. Пройдите тест</h4>
-    <p>Проверьте свои знания и получите мгновенную обратную связь.</p>
-  </div>
-</section>
-
-<footer>
-  © 2025 Платформа для изучения Java. Все права защищены.
-</footer>
-
 </body>
 </html>

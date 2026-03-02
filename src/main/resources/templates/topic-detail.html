@@ -2,102 +2,317 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title th:text="${topic.title}">Детали темы</title>
+  <title th:text="${topic != null ? topic.title : 'Тема'}">Тема</title>
   <style>
-    /* Фон страницы */
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: url('/images/icon-detail.png') center/cover no-repeat;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-      color: #333;
+    :root{
+      --bg0:#060814;
+      --bg1:#0a0f2a;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.04);
+      --border: rgba(255,255,255,.14);
+      --text: #e8ecff;
+      --muted: rgba(232,236,255,.70);
+
+      --a: #5c63ff;   /* primary */
+      --b: #22c55e;   /* green */
+      --c: #f59e0b;   /* amber */
+      --p: #a855f7;   /* purple */
+      --r: #ef4444;   /* red */
+
+      --shadow: 0 22px 70px rgba(0,0,0,.55);
+      --shadow2: 0 12px 34px rgba(0,0,0,.35);
+      --radius: 22px;
     }
 
-    /* Полупрозрачная карточка */
-    .card {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(8px);
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      max-width: 800px;
-      width: 100%;
-      padding: 30px 40px;
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    body{
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      min-height:100vh;
+      overflow-x:hidden;
+      padding: 22px;
+      background:
+      radial-gradient(1200px 700px at 10% 10%, rgba(92,99,255,.22), transparent 60%),
+      radial-gradient(900px 520px at 90% 20%, rgba(168,85,247,.20), transparent 60%),
+      radial-gradient(1000px 600px at 65% 85%, rgba(34,197,94,.16), transparent 60%),
+      linear-gradient(180deg, var(--bg0), var(--bg1));
+    }
+    a{ text-decoration:none; color:inherit; }
+
+    /* Animated grid (как в футуристическом стиле) */
+    .fx{
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      z-index:-1;
+    }
+    .fx::before{
+      content:'';
+      position:absolute; inset:0;
+      background:
+      linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 52px 52px;
+      opacity:.18;
+      mask-image: radial-gradient(650px 420px at 50% 18%, #000 40%, transparent 75%);
+      transform: perspective(900px) rotateX(55deg) translateY(-120px);
+      filter: blur(.2px);
+    }
+    .fx::after{
+      content:'';
+      position:absolute; inset:-80px;
+      background:
+      radial-gradient(420px 240px at 15% 20%, rgba(92,99,255,.18), transparent 60%),
+      radial-gradient(420px 240px at 85% 25%, rgba(168,85,247,.16), transparent 60%),
+      radial-gradient(460px 260px at 60% 90%, rgba(34,197,94,.12), transparent 60%);
+      filter: blur(28px);
+      opacity: .95;
+      animation: drift 10s ease-in-out infinite alternate;
+    }
+    @keyframes drift{
+      from { transform: translate3d(-12px, -10px, 0) scale(1.02); }
+      to   { transform: translate3d(12px, 10px, 0) scale(1.05); }
     }
 
-    .card h1 {
-      margin-bottom: 20px;
-      font-size: 2em;
-      text-align: center;
-      color: #2c3e50;
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 18px 0 50px;
     }
 
-    .content {
-      line-height: 1.6;
-      color: #444;
+    /* Glass card */
+    .card{
+      position: relative;
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      overflow: hidden;
+      padding: 34px;
+      animation: slideUp .7s ease-out;
+    }
+    .card::before{
+      content:'';
+      position:absolute; inset:-2px;
+      background: conic-gradient(from 180deg,
+      rgba(92,99,255,.26),
+      rgba(168,85,247,.20),
+      rgba(34,197,94,.18),
+      rgba(245,158,11,.16),
+      rgba(92,99,255,.26));
+      filter: blur(22px);
+      opacity: .38;
+      animation: spin 10s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .card > *{ position: relative; z-index: 1; }
+
+    .header{
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
     }
 
-    .content pre {
-      background: #2d2d2d;
+    h1{
+      font-size: 2.2em;
+      line-height: 1.1;
+      font-weight: 980;
+      letter-spacing: -0.8px;
+      background: linear-gradient(135deg, #c7d2fe, #ffffff, #d8b4fe);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color: transparent;
+      background-clip:text;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.16);
+      width: fit-content;
+      color: rgba(232,236,255,.85);
+      font-weight: 850;
+      font-size: 13px;
+    }
+    .dot{
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(92,99,255,.95);
+      box-shadow: 0 0 0 1px rgba(92,99,255,.25), 0 0 18px rgba(92,99,255,.35);
+    }
+    .dot.practice{
+      background: rgba(34,197,94,.95);
+      box-shadow: 0 0 0 1px rgba(34,197,94,.20), 0 0 18px rgba(34,197,94,.28);
+    }
+
+    .subtitle{
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .content{
+      margin-top: 18px;
+      color: rgba(232,236,255,.78);
+      line-height: 1.85;
+      font-size: 1.02em;
+      max-height: 520px;
+      overflow: auto;
+      padding-right: 6px;
+    }
+
+    .content p{ margin: 10px 0; }
+    .content ul, .content ol { padding-left: 22px; margin: 10px 0; }
+    .content li{ margin: 6px 0; }
+
+    .content a{ color:#c7d2fe; }
+    .content code{
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 8px;
+      padding: 2px 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: .95em;
+    }
+    .content pre{
+      margin: 14px 0;
+      background: linear-gradient(135deg, rgba(0,0,0,.55), rgba(0,0,0,.35));
+      border: 1px solid rgba(255,255,255,.12);
       color: #f8f8f2;
-      padding: 15px;
-      border-radius: 6px;
+      padding: 18px;
+      border-radius: 16px;
+      box-shadow: var(--shadow2);
       overflow-x: auto;
-      margin: 20px 0;
     }
 
-    .content code {
-      font-family: Consolas, monospace;
+    .actions{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
     }
 
-    /* Кнопки */
-    .buttons {
-      margin: 30px 0;
-      text-align: center;
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      box-shadow: var(--shadow2);
+      font-weight: 900;
+      transition: transform .15s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+      cursor: pointer;
     }
-    .btn {
-      display: inline-block;
-      padding: 12px 24px;
-      margin: 0 10px;
-      border-radius: 6px;
-      font-weight: bold;
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,.22);
+      background: rgba(255,255,255,.09);
+      box-shadow: 0 18px 46px rgba(0,0,0,.38);
+    }
+
+    .btn.test{
+      border: none;
+      background: linear-gradient(135deg, rgba(34,197,94,1), rgba(92,99,255,.90));
+      box-shadow: 0 22px 58px rgba(34,197,94,.14);
+    }
+    .btn.test:hover{ box-shadow: 0 26px 70px rgba(34,197,94,.18); }
+
+    .btn.video{
+      border: none;
+      background: linear-gradient(135deg, rgba(96,165,250,1), rgba(79,70,229,1));
+      box-shadow: 0 22px 58px rgba(92,99,255,.16);
+    }
+    .btn.video:hover{ box-shadow: 0 26px 70px rgba(92,99,255,.20); }
+
+    .back{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      margin-top: 18px;
+      color: rgba(232,236,255,.72);
+      font-weight: 850;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.14);
+      width: fit-content;
+      transition: transform .15s ease, background .2s ease, border-color .2s ease, color .2s ease;
+    }
+    .back:hover{
+      transform: translateY(-1px);
       color: #fff;
-      transition: background-color 0.2s;
-      text-decoration: none;
+      border-color: rgba(92,99,255,.30);
+      background: rgba(92,99,255,.10);
     }
-    .test-btn { background: #28a745; }
-    .test-btn:hover { background: #218838; }
-    .video-btn { background: #6c757d; }
-    .video-btn:hover { background: #5a6268; }
 
-    .back {
-      display: block;
-      text-align: center;
-      margin-top: 20px;
-      color: #4CAF50;
-      text-decoration: none;
-      font-size: 0.9rem;
+    @media (max-width: 720px){
+      .card{ padding: 24px; }
+      h1{ font-size: 1.85em; }
     }
-    .back:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-<div class="card">
-  <h1 th:text="${topic.title}">Название темы</h1>
+<div class="fx"></div>
 
-  <div class="content" th:utext="${topic.content}">
-    <!-- Здесь полный HTML-контент темы -->
+<div class="wrap">
+  <div class="card">
+    <div class="header">
+      <h1 th:text="${topic != null ? topic.title : 'Тема не найдена'}">Название темы</h1>
+
+      <div class="badge" th:if="${topic != null}">
+        <span class="dot" th:classappend="${topic.type == 'practice'} ? ' practice' : ''"></span>
+        <span th:text="${topic.type == 'practice' ? 'Практика' : 'Теория'}">Теория</span>
+      </div>
+
+      <div class="subtitle" th:if="${topic != null}"
+           th:text="${topic.type == 'practice'
+              ? 'Закрепи знания через задачи и упражнения.'
+              : 'Разберись в концепциях, примерах и определениях.'}">
+        Подзаголовок темы
+      </div>
+    </div>
+
+    <div class="content" th:if="${topic != null}" th:utext="${topic.content}">
+      Контент темы
+    </div>
+
+    <div class="content" th:if="${topic == null}">
+      Похоже, страница открылась без данных темы (атрибут <b>topic</b> не передан в модель).
+      Проверь контроллер и маршрут для страницы темы.
+    </div>
+
+    <!-- Кнопки: тест и видео обычно только для theory, но если у тебя иначе — можно убрать условие -->
+    <div class="actions" th:if="${topic != null}">
+      <a class="btn test"
+         th:if="${topic.type == 'theory'}"
+         th:href="@{'/test/' + ${topic.id}}">
+        ✅ Пройти тест
+      </a>
+
+      <a class="btn video"
+         th:if="${topic.type == 'theory' and topic.videoUrl != null and !#strings.isEmpty(topic.videoUrl)}"
+         th:href="${topic.videoUrl}"
+         target="_blank">
+        ▶ Смотреть видео
+      </a>
+    </div>
+
+    <a class="back" th:href="@{/}">
+      ← Назад на главную
+    </a>
   </div>
-
-  <div class="buttons" th:if="${topic.type == 'theory'}">
-    <a th:href="@{'/test/' + ${topic.id}}" class="btn test-btn">Пройти тест</a>
-    <a th:href="${topic.videoUrl}" target="_blank" class="btn video-btn">Смотреть видео</a>
-  </div>
-
-  <a th:href="@{ / }" class="back">← Назад на главную</a>
 </div>
 </body>
 </html>

@@ -3,13 +3,11 @@ package com.app.java.WebAppJava.controller;
 import com.app.java.WebAppJava.model.Answer;
 import com.app.java.WebAppJava.model.Question;
 import com.app.java.WebAppJava.model.TestResult;
-import com.app.java.WebAppJava.model.Topic;
+import com.app.java.WebAppJava.model.TestResultDetail;
 import com.app.java.WebAppJava.repository.AnswerRepository;
 import com.app.java.WebAppJava.repository.QuestionRepository;
+import com.app.java.WebAppJava.repository.TestResultDetailRepository;
 import com.app.java.WebAppJava.repository.TestResultRepository;
-import com.app.java.WebAppJava.service.QuestionService;
-import com.app.java.WebAppJava.service.TopicService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,60 +26,85 @@ public class TestController {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
     private final TestResultRepository testResultRepository;
+    private final TestResultDetailRepository testResultDetailRepository;
 
-    public TestController(QuestionRepository questionRepository, AnswerRepository answerRepository, TestResultRepository testResultRepository) {
+    public TestController(QuestionRepository questionRepository,
+                          AnswerRepository answerRepository,
+                          TestResultRepository testResultRepository,
+                          TestResultDetailRepository testResultDetailRepository) {
         this.questionRepository = questionRepository;
         this.answerRepository = answerRepository;
         this.testResultRepository = testResultRepository;
+        this.testResultDetailRepository = testResultDetailRepository;
     }
 
     @GetMapping("/test/{topicId}")
     public String showTest(@PathVariable Long topicId, Model model) {
         List<Question> questions = questionRepository.findByTopicId(topicId);
         model.addAttribute("questions", questions);
+        model.addAttribute("topicId", topicId); // важно
         return "test";
     }
+
     @PostMapping("/test-result")
     public String handleTestResult(@RequestParam Long topicId, HttpServletRequest request, Model model) {
         List<Question> questions = questionRepository.findByTopicId(topicId);
         int correctCount = 0;
         int totalCount = questions.size();
-        Map<Long, Long> selectedAnswers = new HashMap<>();
+
         List<QuestionResult> questionResults = new ArrayList<>();
 
         for (Question question : questions) {
             String paramName = "q_" + question.getId();
             String selectedAnswerIdStr = request.getParameter(paramName);
+
             if (selectedAnswerIdStr != null) {
                 Long selectedAnswerId = Long.parseLong(selectedAnswerIdStr);
-                selectedAnswers.put(question.getId(), selectedAnswerId);
 
                 boolean isCorrect = question.getAnswers().stream()
                         .anyMatch(a -> a.getId().equals(selectedAnswerId) && a.isCorrect());
+
                 if (isCorrect) correctCount++;
+
                 questionResults.add(new QuestionResult(question, selectedAnswerId, isCorrect));
             } else {
                 questionResults.add(new QuestionResult(question, null, false));
             }
         }
 
-        // Получаем логин пользователя
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // Сохраняем результат
         TestResult result = new TestResult();
         result.setUsername(username);
         result.setTopicId(topicId);
         result.setCorrectCount(correctCount);
         result.setTotalCount(totalCount);
         result.setTimestamp(LocalDateTime.now());
+
         testResultRepository.save(result);
+
+        // ✅ сохраняем детали по каждому вопросу
+        List<TestResultDetail> details = new ArrayList<>();
+        for (QuestionResult qr : questionResults) {
+            TestResultDetail d = new TestResultDetail();
+            d.setResult(result);
+            d.setQuestion(qr.getQuestion());
+
+            if (qr.getSelectedAnswerId() != null) {
+                Answer selected = answerRepository.findById(qr.getSelectedAnswerId()).orElse(null);
+                d.setSelectedAnswer(selected);
+            } else {
+                d.setSelectedAnswer(null);
+            }
+
+            d.setCorrect(qr.isCorrect());
+            details.add(d);
+        }
+        testResultDetailRepository.saveAll(details);
 
         model.addAttribute("correctCount", correctCount);
         model.addAttribute("totalCount", totalCount);
         model.addAttribute("questionResults", questionResults);
         return "test-result";
     }
-
 }
-

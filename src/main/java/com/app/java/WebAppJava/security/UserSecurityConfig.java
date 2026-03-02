@@ -16,7 +16,7 @@ public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
                     .authorizeRequests()
                     .antMatchers("/", "/theory", "/practice", "/topic/**",
                             "/images/**").permitAll()
-                    .antMatchers("/test/**","/test-result","/my-tests")
+                    .antMatchers("/test/**", "/test-result", "/my-tests", "/my-tests/**")
                     .hasAnyRole("USER","ADMIN")
                     .anyRequest().authenticated()
                     .and()

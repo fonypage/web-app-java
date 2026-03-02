@@ -2,133 +2,294 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Вход в админ-панель</title>
+  <title>Admin Login • Java Learning</title>
   <style>
-    /* Фон страницы */
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #2c3e50;
+    :root{
+      --bg0:#060814;
+      --bg1:#0a0f2a;
+      --panel: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.14);
+      --text: #e8ecff;
+      --muted: rgba(232,236,255,.70);
+
+      --a: #5c63ff;
+      --p: #a855f7;
+      --c: #f59e0b;
+      --r: #ef4444;
+
+      --shadow: 0 22px 70px rgba(0,0,0,.55);
+      --shadow2: 0 12px 34px rgba(0,0,0,.35);
+      --radius: 22px;
     }
 
-    /* Окошко логина */
-    .login-box {
-      background-color: #ffffff;
-      padding: 40px 30px;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 360px;
-      text-align: center;
-      animation: fadeIn 0.5s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .login-box .logo img {
-      width: 60px;
-      margin-bottom: 12px;
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    body{
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 24px;
+      overflow-x:hidden;
+      background:
+      radial-gradient(1200px 700px at 10% 10%, rgba(92,99,255,.22), transparent 60%),
+      radial-gradient(900px 520px at 90% 20%, rgba(168,85,247,.20), transparent 60%),
+      radial-gradient(1000px 600px at 65% 85%, rgba(245,158,11,.12), transparent 60%),
+      linear-gradient(180deg, var(--bg0), var(--bg1));
     }
 
-    .login-box h2 {
-      margin-bottom: 24px;
-      color: #2c3e50;
-      font-size: 1.6rem;
+    /* animated grid */
+    .fx{
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      z-index:-1;
+    }
+    .fx::before{
+      content:'';
+      position:absolute; inset:0;
+      background:
+      linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 52px 52px;
+      opacity:.18;
+      mask-image: radial-gradient(600px 400px at 50% 20%, #000 40%, transparent 75%);
+      transform: perspective(900px) rotateX(55deg) translateY(-120px);
+      filter: blur(.2px);
+    }
+    .fx::after{
+      content:'';
+      position:absolute; inset:-80px;
+      background:
+      radial-gradient(420px 240px at 15% 20%, rgba(92,99,255,.18), transparent 60%),
+      radial-gradient(420px 240px at 85% 25%, rgba(168,85,247,.16), transparent 60%),
+      radial-gradient(460px 260px at 60% 90%, rgba(245,158,11,.10), transparent 60%);
+      filter: blur(28px);
+      opacity: .95;
+      animation: drift 10s ease-in-out infinite alternate;
+    }
+    @keyframes drift{
+      from { transform: translate3d(-12px, -10px, 0) scale(1.02); }
+      to   { transform: translate3d(12px, 10px, 0) scale(1.05); }
     }
 
-    .form-group {
-      margin-bottom: 20px;
+    .card{
+      width: min(440px, 92vw);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      overflow:hidden;
       position: relative;
-      text-align: left;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 6px;
-      color: #2c3e50;
-      font-size: 0.9rem;
-    }
-    .form-group input {
-      width: 100%;
-      padding: 12px 12px;
-      border: 1px solid #ccd6e0;
-      border-radius: 6px;
-      background: #fafafa;
-      color: #2c3e50;
-      font-size: 1rem;
-      outline: none;
-      transition: border-color 0.3s, box-shadow 0.3s;
-    }
-    .form-group input::placeholder {
-      color: #999999;
-      opacity: 1;
-    }
-    .form-group input:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 5px rgba(59,130,246,0.4);
+      padding: 26px;
     }
 
-    .form-group .icon {
-      position: absolute;
-      top: 32px;
-      right: 12px;
-      width: 20px;
-      opacity: 0.8;
+    .card::before{
+      content:'';
+      position:absolute; inset:-2px;
+      background: conic-gradient(from 180deg,
+      rgba(92,99,255,.28),
+      rgba(168,85,247,.22),
+      rgba(245,158,11,.18),
+      rgba(92,99,255,.28));
+      filter: blur(22px);
+      opacity: .45;
+      animation: spin 9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .card > *{ position:relative; z-index:1; }
+
+    .top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      margin-bottom: 18px;
     }
 
-    button {
-      width: 100%;
-      padding: 14px;
-      background-color: #3b82f6;
-      border: none;
-      border-radius: 6px;
-      color: #ffffff;
-      font-weight: bold;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.3s, transform 0.2s;
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
     }
-    button:hover {
-      background-color: #2563eb;
-      transform: translateY(-2px);
+    .logo{
+      width: 42px; height: 42px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(92,99,255,1), rgba(168,85,247,1));
+      box-shadow: 0 14px 28px rgba(92,99,255,.25);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight: 950;
+      letter-spacing: -0.5px;
     }
-    button:active {
-      transform: translateY(0);
+    .title{
+      font-weight: 950;
+      letter-spacing: -0.3px;
+      line-height: 1.1;
+    }
+    .subtitle{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
     }
 
-    .note {
-      margin-top: 16px;
-      font-size: 0.85rem;
-      color: #666666;
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      text-decoration:none;
+      font-weight: 850;
+      transition: transform .15s ease, background .2s ease, border-color .2s ease;
+      white-space: nowrap;
+    }
+    .pill:hover{ transform: translateY(-1px); background: rgba(0,0,0,.32); border-color: rgba(255,255,255,.22); }
+
+    .headline{
+      margin: 10px 0 6px;
+      font-size: 22px;
+      font-weight: 980;
+      letter-spacing: -0.5px;
+    }
+    .desc{
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+      margin-bottom: 16px;
+    }
+
+    form{ display:flex; flex-direction:column; gap: 12px; }
+
+    .field{
+      position: relative;
+      padding: 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.14);
+    }
+    .field label{
+      display:block;
+      font-size: 12px;
+      font-weight: 850;
+      color: rgba(232,236,255,.75);
+      margin-bottom: 8px;
+    }
+    .field input{
+      width:100%;
+      border:none;
+      outline:none;
+      background: transparent;
+      color: var(--text);
+      font-size: 15px;
+      padding-right: 36px;
+    }
+    .field input::placeholder{ color: rgba(232,236,255,.45); }
+
+    .icon{
+      position:absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(6px);
+      width: 18px;
+      opacity: .75;
+      filter: drop-shadow(0 0 10px rgba(92,99,255,.35));
+      pointer-events:none;
+    }
+
+    .submit{
+      margin-top: 4px;
+      width:100%;
+      border:none;
+      border-radius: 16px;
+      padding: 14px 16px;
+      cursor:pointer;
+      font-weight: 950;
+      color: white;
+      background: linear-gradient(135deg, rgba(92,99,255,1), rgba(168,85,247,1));
+      box-shadow: 0 22px 58px rgba(92,99,255,.22);
+      transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+    }
+    .submit:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 26px 70px rgba(92,99,255,.26);
+      opacity: .98;
+    }
+
+    .note{
+      margin-top: 14px;
+      font-size: 12px;
+      color: rgba(232,236,255,.65);
+      background: rgba(0,0,0,.12);
+      border: 1px solid rgba(255,255,255,.10);
+      padding: 10px 12px;
+      border-radius: 16px;
+    }
+
+    /* ошибки (если Spring Security добавляет ?error) */
+    .error{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(239,68,68,.35);
+      background: rgba(239,68,68,.10);
+      color: rgba(255,255,255,.92);
+      font-size: 13px;
+    }
+
+    /* адаптив */
+    @media (max-width: 420px){
+      .top{ flex-direction:column; align-items:flex-start; }
+      .pill{ width:100%; justify-content:center; }
     }
   </style>
 </head>
+
 <body>
-<div class="login-box">
-  <div class="logo">
-    <img th:src="@{/images/icon-admin.png}" alt="Admin">
+<div class="fx"></div>
+
+<div class="card">
+  <div class="top">
+    <div class="brand">
+      <div class="logo">J</div>
+      <div>
+        <div class="title">Java Learning</div>
+        <div class="subtitle">Консоль администратора • безопасный доступ</div>
+      </div>
+    </div>
+
+    <a th:href="@{/}" class="pill">← На главную</a>
   </div>
-  <h2>Админ-панель</h2>
+
+  <div class="headline">Админ-панель</div>
+  <div class="desc">Войдите под учётной записью администратора, чтобы управлять темами и контентом.</div>
+
+  <div class="error" th:if="${param.error}">
+    Неверный логин или пароль.
+  </div>
+
   <form th:action="@{/login}" method="post">
-    <div class="form-group">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+    <div class="field">
       <label for="username">Логин</label>
       <input type="text" id="username" name="username" placeholder="Введите логин" required>
-      <img class="icon" th:src="@{/images/icon-login.png}" alt="User Icon">
     </div>
-    <div class="form-group">
+
+    <div class="field">
       <label for="password">Пароль</label>
       <input type="password" id="password" name="password" placeholder="Введите пароль" required>
-      <img class="icon" th:src="@{/images/icon-password.png}" alt="Lock Icon">
     </div>
-    <button type="submit">Войти</button>
+
+    <button class="submit" type="submit">Войти</button>
   </form>
+
   <div class="note">Доступ только для администратора (admin/admin)</div>
 </div>
 </body>
