@@ -9,8 +9,8 @@ CREATE TABLE practice_task (
   xp_reward INT NOT NULL DEFAULT 50,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_practice_task_topic
-    FOREIGN KEY (topic_id) REFERENCES topics(id)
-);
+    FOREIGN KEY (topic_id) REFERENCES topic(id)
+) ENGINE=InnoDB;
 
 CREATE TABLE practice_testcase (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -20,7 +20,7 @@ CREATE TABLE practice_testcase (
   is_hidden BOOLEAN NOT NULL DEFAULT FALSE,
   CONSTRAINT fk_practice_testcase_task
     FOREIGN KEY (task_id) REFERENCES practice_task(id)
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE practice_submission (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -38,4 +38,4 @@ CREATE TABLE practice_submission (
     FOREIGN KEY (task_id) REFERENCES practice_task(id),
   INDEX idx_practice_submission_user (username),
   INDEX idx_practice_submission_task (task_id)
-);
+) ENGINE=InnoDB;

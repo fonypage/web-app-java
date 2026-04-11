@@ -1,0 +1,2 @@
+ALTER TABLE user_profile
+  ADD COLUMN xp INT NOT NULL DEFAULT 0;

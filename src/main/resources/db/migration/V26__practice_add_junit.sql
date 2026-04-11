@@ -1,0 +1,3 @@
+ALTER TABLE practice_task
+  ADD COLUMN checker_type VARCHAR(10) NOT NULL DEFAULT 'STDOUT',
+  ADD COLUMN junit_test_code LONGTEXT NULL;

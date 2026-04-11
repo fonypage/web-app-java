@@ -1,5 +1,6 @@
 -- V14__insert_practice_variables.sql
 -- Практика по теме "Переменные и типы данных в Java"
+
 INSERT INTO topic (title, content, type, video_url) VALUES
 (
   'Практика: Объявление и использование переменных',
@@ -19,20 +20,16 @@ INSERT INTO topic (title, content, type, video_url) VALUES
         char c = ''J'';
         boolean bool = true;
 
-        System.out.println("byte: " + b);
-        System.out.println("short: " + s);
-        System.out.println("int: " + i);
-        System.out.println("long: " + l);
-        System.out.println("float: " + f);
-        System.out.println("double: " + d);
-        System.out.println("char: " + c);
-        System.out.println("boolean: " + bool);
+        System.out.println(\"byte: \" + b);
+        System.out.println(\"short: \" + s);
+        System.out.println(\"int: \" + i);
+        System.out.println(\"long: \" + l);
+        System.out.println(\"float: \" + f);
+        System.out.println(\"double: \" + d);
+        System.out.println(\"char: \" + c);
+        System.out.println(\"boolean: \" + bool);
     }
-}</code></pre>
-
-  <div style="background:#eef; padding:10px; border-left:4px solid #4CAF50; margin:20px 0;">
-    <strong>Совет:</strong> Используйте <em>camelCase</em> для имён переменных, не забывайте суффиксы <code>L</code> и <code>f</code> у литералов, и проверяйте корректный вывод каждого типа.
-  </div>',
+}</code></pre>',
   'practice',
-  ''
+  NULL
 );

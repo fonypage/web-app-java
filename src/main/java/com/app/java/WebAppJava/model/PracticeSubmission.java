@@ -53,4 +53,13 @@ public class PracticeSubmission {
     public void setLastStdout(String lastStdout) { this.lastStdout = lastStdout; }
     public void setLastStderr(String lastStderr) { this.lastStderr = lastStderr; }
     public void setCode(String code) { this.code = code; }
+
+    public Long getTaskId() { return taskId; }
+    public String getCode() { return code; }
+    public String getStatus() { return status; }
+    public int getPassedCount() { return passedCount; }
+    public int getTotalCount() { return totalCount; }
+    public Integer getDurationMs() { return durationMs; }
+    public String getLastStdout() { return lastStdout; }
+    public String getLastStderr() { return lastStderr; }
 }

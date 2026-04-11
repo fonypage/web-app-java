@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import com.app.java.WebAppJava.repository.PracticeTaskRepository;
 
 import java.util.List;
 
@@ -14,9 +15,12 @@ public class TopicController {
 
     private final TopicService topicService;
 
+    private final PracticeTaskRepository practiceTaskRepository;
+
     @Autowired
-    public TopicController(TopicService topicService){
+    public TopicController(TopicService topicService, PracticeTaskRepository practiceTaskRepository){
         this.topicService = topicService;
+        this.practiceTaskRepository = practiceTaskRepository;
     }
 
     @GetMapping("/theory")
@@ -33,6 +37,13 @@ public class TopicController {
         model.addAttribute("topics", topics);
         model.addAttribute("search", search);
         return "practice";
+    }
+
+    @GetMapping("/practice/topic/{topicId}")
+    public String openPracticeByTopic(@PathVariable Long topicId) {
+        var task = practiceTaskRepository.findFirstByTopicId(topicId)
+                .orElseThrow(() -> new IllegalArgumentException("No practice task for topicId=" + topicId));
+        return "redirect:/practice/task/" + task.getId();
     }
 
     @GetMapping("/topic/{id}")

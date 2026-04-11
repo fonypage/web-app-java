@@ -340,9 +340,9 @@
         </div>
 
         <a th:each="topic : ${topics}"
-           th:href="@{'/topic/' + ${topic.id}}"
-           class="topic-card">
-            <h2 th:text="${topic.title}">Название темы</h2>
+           class="topic-card"
+           th:href="@{'/practice/topic/' + ${topic.id}}">
+            <h2 th:text="${topic.title}"></h2>
         </a>
     </section>
 

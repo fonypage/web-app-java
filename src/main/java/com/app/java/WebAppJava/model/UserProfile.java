@@ -37,6 +37,18 @@ public class UserProfile {
         updatedAt = LocalDateTime.now();
     }
 
+    @Column(name = "xp", nullable = false)
+    private int xp = 0;
+
+    @Column(name = "display_name", length = 64)
+    private String displayName;
+
+    public String getDisplayName() { return displayName; }
+    public void setDisplayName(String displayName) { this.displayName = displayName; }
+
+    public int getXp() { return xp; }
+    public void setXp(int xp) { this.xp = xp; }
+
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 

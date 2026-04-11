@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface PracticeSubmissionRepository extends JpaRepository<PracticeSubmission, Long> {
     List<PracticeSubmission> findTop10ByUsernameOrderByIdDesc(String username);
+    long countByUsernameAndTaskId(String username, Long taskId);
 }
