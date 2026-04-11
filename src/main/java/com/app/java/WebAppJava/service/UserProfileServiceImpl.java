@@ -4,13 +4,10 @@ import com.app.java.WebAppJava.dto.AchievementDto;
 import com.app.java.WebAppJava.dto.MistakeDto;
 import com.app.java.WebAppJava.dto.UserProfileSummaryDto;
 import com.app.java.WebAppJava.model.*;
-import com.app.java.WebAppJava.repository.TestResultDetailRepository;
-import com.app.java.WebAppJava.repository.TestResultRepository;
-import com.app.java.WebAppJava.repository.UserProfileRepository;
+import com.app.java.WebAppJava.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.app.java.WebAppJava.dto.TopicProgressDto;
-import com.app.java.WebAppJava.repository.TopicRepository;
 
 
 import java.time.LocalDate;
@@ -25,15 +22,22 @@ public class UserProfileServiceImpl implements UserProfileService {
     private final TestResultRepository testResultRepository;
     private final TopicRepository topicRepository;
     private final TestResultDetailRepository testResultDetailRepository;
+    private final PracticeTaskSolvedRepository practiceTaskSolvedRepository;
+    private final PracticeSubmissionRepository practiceSubmissionRepository;
+
 
     public UserProfileServiceImpl(UserProfileRepository userProfileRepository,
                                   TestResultRepository testResultRepository,
                                   TopicRepository topicRepository,
-                                  TestResultDetailRepository testResultDetailRepository) {
+                                  TestResultDetailRepository testResultDetailRepository,
+                                  PracticeTaskSolvedRepository practiceTaskSolvedRepository,
+                                  PracticeSubmissionRepository practiceSubmissionRepository) {
         this.userProfileRepository = userProfileRepository;
         this.testResultRepository = testResultRepository;
         this.topicRepository = topicRepository;
         this.testResultDetailRepository = testResultDetailRepository;
+        this.practiceTaskSolvedRepository = practiceTaskSolvedRepository;
+        this.practiceSubmissionRepository = practiceSubmissionRepository;
     }
 
     @Override
@@ -66,7 +70,7 @@ public class UserProfileServiceImpl implements UserProfileService {
         int avgPercent = percents.isEmpty() ? 0 : (int) Math.round(percents.stream().mapToInt(x -> x).average().orElse(0));
 
         // XP: 10 * correct + бонус за 100% (+50)
-        int xp = results.stream().mapToInt(r -> (safeCorrect(r) * 10) + (percent(r) == 100 ? 50 : 0)).sum();
+        int xp = profile.getXp();
 
         // уровни: каждые 500 XP — новый уровень
         int level = 1 + (xp / 500);
@@ -77,10 +81,28 @@ public class UserProfileServiceImpl implements UserProfileService {
         int streakDays = computeStreakDays(results);
 
         // достижения (вычисляемые)
-        List<AchievementDto> achievements = buildAchievements(results, totalTests, bestPercent, streakDays);
+        long solvedPractice = practiceTaskSolvedRepository.countByUsername(username);
+
+        boolean practiceFirst = solvedPractice >= 1;
+        boolean practice3 = solvedPractice >= 3;
+        boolean practice5 = solvedPractice >= 5;
+        boolean practice10 = solvedPractice >= 10;
+
+// "С первого раза": есть хотя бы одна решённая задача, у которой было ровно 1 сабмишн
+        boolean practiceFirstTry = practiceTaskSolvedRepository.findTaskIdsByUsername(username).stream()
+                .anyMatch(taskId -> practiceSubmissionRepository.countByUsernameAndTaskId(username, taskId) == 1);
+
+        List<AchievementDto> achievements =
+                buildAchievements(results, totalTests, bestPercent, streakDays,
+                        practiceFirst, practice3, practice5, practice10, practiceFirstTry);
+
+        String shownName = (profile.getDisplayName() != null && !profile.getDisplayName().isBlank())
+                ? profile.getDisplayName()
+                : username;
 
         return new UserProfileSummaryDto(
                 username,
+                shownName,
                 profile.getInstitution(),
                 totalTests,
                 bestPercent,
@@ -100,9 +122,32 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Override
     @Transactional
     public void updateInstitution(String username, String institution) {
+        updateProfile(username, institution, null);
+    }
+
+    @Override
+    @Transactional
+    public void updateProfile(String username, String institution, String displayName) {
         UserProfile profile = userProfileRepository.findById(username)
                 .orElseGet(() -> new UserProfile(username));
-        profile.setInstitution(normalizeInstitution(institution));
+
+        if (institution != null) {
+            profile.setInstitution(normalizeInstitution(institution));
+        }
+
+        if (displayName != null) {
+            String dn = displayName.trim();
+            if (dn.isEmpty()) dn = null;
+
+            // лёгкая валидация
+            if (dn != null) {
+                if (dn.length() > 32) dn = dn.substring(0, 32);
+                dn = dn.replaceAll("[<>\"'\\\\]", "");
+            }
+
+            profile.setDisplayName(dn);
+        }
+
         userProfileRepository.save(profile);
     }
 
@@ -153,7 +198,17 @@ public class UserProfileServiceImpl implements UserProfileService {
         return r.getTimestamp() == null ? null : r.getTimestamp().toLocalDate();
     }
 
-    private List<AchievementDto> buildAchievements(List<TestResult> results, int totalTests, int bestPercent, int streakDays) {
+    private List<AchievementDto> buildAchievements(
+            List<TestResult> results,
+            int totalTests,
+            int bestPercent,
+            int streakDays,
+            boolean practiceFirst,
+            boolean practice3,
+            boolean practice5,
+            boolean practice10,
+            boolean practiceFirstTry
+    ) {
         // “Освоение темы” считаем как наличие попытки >= 80% по теме
         // (topicId/Topic берём из TestResult — подстрой если поле иначе)
         Set<Long> masteredTopics = results.stream()
@@ -169,11 +224,19 @@ public class UserProfileServiceImpl implements UserProfileService {
         boolean fiveTopics = masteredTopics.size() >= 5;
 
         return List.of(
+                // теория (как было)
                 new AchievementDto("FIRST_TEST", "🏁 Первый тест", "Пройди 1 тест", firstTest),
                 new AchievementDto("PERFECT", "🎯 Идеальный результат", "Получи 100% хотя бы раз", perfect),
                 new AchievementDto("TEN_TESTS", "🧠 10 тестов", "Пройди 10 тестов", tenTests),
                 new AchievementDto("STREAK_3", "🔥 Серия 3 дня", "Проходи тесты 3 дня подряд", streak3),
-                new AchievementDto("MASTER_5_TOPICS", "⭐ 5 тем освоено", "Набери ≥80% в 5 разных темах", fiveTopics)
+                new AchievementDto("MASTER_5_TOPICS", "⭐ 5 тем освоено", "Набери ≥80% в 5 разных темах", fiveTopics),
+
+                // практика (новое)
+                new AchievementDto("PRACTICE_FIRST", "🧩 Первая задача", "Реши 1 практическую задачу", practiceFirst),
+                new AchievementDto("PRACTICE_FIRST_TRY", "⚡ С первого раза", "Реши задачу с первой попытки", practiceFirstTry),
+                new AchievementDto("PRACTICE_3", "🧩 3 задачи", "Реши 3 практические задачи", practice3),
+                new AchievementDto("PRACTICE_5", "🧩 5 задач", "Реши 5 практических задач", practice5),
+                new AchievementDto("PRACTICE_10", "🧩 10 задач", "Реши 10 практических задач", practice10)
         );
     }
 

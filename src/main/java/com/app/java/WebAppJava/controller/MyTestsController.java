@@ -54,9 +54,12 @@ public class MyTestsController {
     }
 
     @PostMapping("/my-tests/profile")
-    public String updateInstitution(@RequestParam("institution") String institution) {
+    public String updateProfile(
+            @RequestParam(value = "institution", required = false) String institution,
+            @RequestParam(value = "displayName", required = false) String displayName
+    ) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        userProfileService.updateInstitution(username, institution);
+        userProfileService.updateProfile(username, institution, displayName);
         return "redirect:/my-tests";
     }
 }

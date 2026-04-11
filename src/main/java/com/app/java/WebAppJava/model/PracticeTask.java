@@ -32,6 +32,16 @@ public class PracticeTask {
     @Column(name = "xp_reward", nullable = false)
     private int xpReward = 50;
 
+    @Column(name = "checker_type", nullable = false)
+    private String checkerType = "STDOUT";
+
+    @Lob
+    @Column(name = "junit_test_code")
+    private String junitTestCode;
+
+    public String getCheckerType() { return checkerType; }
+    public String getJunitTestCode() { return junitTestCode; }
+
     public Long getId() { return id; }
     public Long getTopicId() { return topicId; }
     public String getTitle() { return title; }

@@ -3,7 +3,8 @@ package com.app.java.WebAppJava.dto;
 import java.util.List;
 
 public class UserProfileSummaryDto {
-    private final String username;
+    private final String username;     // технический логин (у тебя это email)
+    private final String displayName;  // красивое имя для отображения
     private final String institution;
 
     private final int totalTests;
@@ -17,16 +18,68 @@ public class UserProfileSummaryDto {
 
     private final List<AchievementDto> achievements;
 
-    private java.util.List<com.app.java.WebAppJava.dto.TopicProgressDto> topicProgress;
+    private List<TopicProgressDto> topicProgress;
     private int masteredTopics;
     private int totalTopics;
 
-    private java.util.List<MistakeDto> lastMistakes;
+    private List<MistakeDto> lastMistakes;
 
-    public java.util.List<MistakeDto> getLastMistakes() { return lastMistakes; }
+    public List<MistakeDto> getLastMistakes() { return lastMistakes; }
 
-    public UserProfileSummaryDto(String username, String institution, int totalTests, int bestPercent, int avgPercent, int xp, int level, int xpToNextLevel, int streakDays, List<AchievementDto> achievements, List<TopicProgressDto> topicProgress, int masteredTopics, int totalTopics, List<MistakeDto> lastMistakes) {
+    // ✅ Старый конструктор — оставляем для совместимости
+    public UserProfileSummaryDto(
+            String username,
+            String institution,
+            int totalTests,
+            int bestPercent,
+            int avgPercent,
+            int xp,
+            int level,
+            int xpToNextLevel,
+            int streakDays,
+            List<AchievementDto> achievements,
+            List<TopicProgressDto> topicProgress,
+            int masteredTopics,
+            int totalTopics,
+            List<MistakeDto> lastMistakes
+    ) {
         this.username = username;
+        this.displayName = username; // по умолчанию показываем username
+        this.institution = institution;
+        this.totalTests = totalTests;
+        this.bestPercent = bestPercent;
+        this.avgPercent = avgPercent;
+        this.xp = xp;
+        this.level = level;
+        this.xpToNextLevel = xpToNextLevel;
+        this.streakDays = streakDays;
+        this.achievements = achievements;
+        this.topicProgress = topicProgress;
+        this.masteredTopics = masteredTopics;
+        this.totalTopics = totalTopics;
+        this.lastMistakes = lastMistakes;
+    }
+
+    // ✅ Новый конструктор (когда будешь готов прокидывать displayName из БД)
+    public UserProfileSummaryDto(
+            String username,
+            String displayName,
+            String institution,
+            int totalTests,
+            int bestPercent,
+            int avgPercent,
+            int xp,
+            int level,
+            int xpToNextLevel,
+            int streakDays,
+            List<AchievementDto> achievements,
+            List<TopicProgressDto> topicProgress,
+            int masteredTopics,
+            int totalTopics,
+            List<MistakeDto> lastMistakes
+    ) {
+        this.username = username;
+        this.displayName = displayName;
         this.institution = institution;
         this.totalTests = totalTests;
         this.bestPercent = bestPercent;
@@ -43,6 +96,7 @@ public class UserProfileSummaryDto {
     }
 
     public String getUsername() { return username; }
+    public String getDisplayName() { return displayName; }
     public String getInstitution() { return institution; }
     public int getTotalTests() { return totalTests; }
     public int getBestPercent() { return bestPercent; }
@@ -52,7 +106,7 @@ public class UserProfileSummaryDto {
     public int getXpToNextLevel() { return xpToNextLevel; }
     public int getStreakDays() { return streakDays; }
     public List<AchievementDto> getAchievements() { return achievements; }
-    public java.util.List<TopicProgressDto> getTopicProgress() { return topicProgress; }
+    public List<TopicProgressDto> getTopicProgress() { return topicProgress; }
     public int getMasteredTopics() { return masteredTopics; }
     public int getTotalTopics() { return totalTopics; }
 }

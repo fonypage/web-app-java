@@ -1,0 +1,11 @@
+CREATE TABLE email_login_code (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  email VARCHAR(255) NOT NULL,
+  code_hash VARCHAR(100) NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  attempts_left INT NOT NULL,
+  last_sent_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  used_at TIMESTAMP NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_email_active (email, used_at, expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

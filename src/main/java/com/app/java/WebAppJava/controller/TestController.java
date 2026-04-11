@@ -15,27 +15,31 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import com.app.java.WebAppJava.service.UserXpService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Controller
-public class TestController {
+public class    TestController {
 
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
     private final TestResultRepository testResultRepository;
     private final TestResultDetailRepository testResultDetailRepository;
+    private final UserXpService userXpService;
 
     public TestController(QuestionRepository questionRepository,
                           AnswerRepository answerRepository,
                           TestResultRepository testResultRepository,
-                          TestResultDetailRepository testResultDetailRepository) {
+                          TestResultDetailRepository testResultDetailRepository,
+                          UserXpService userXpService) {
         this.questionRepository = questionRepository;
         this.answerRepository = answerRepository;
         this.testResultRepository = testResultRepository;
         this.testResultDetailRepository = testResultDetailRepository;
+        this.userXpService = userXpService;
     }
 
     @GetMapping("/test/{topicId}")
@@ -83,7 +87,6 @@ public class TestController {
 
         testResultRepository.save(result);
 
-        // ✅ сохраняем детали по каждому вопросу
         List<TestResultDetail> details = new ArrayList<>();
         for (QuestionResult qr : questionResults) {
             TestResultDetail d = new TestResultDetail();
@@ -101,6 +104,10 @@ public class TestController {
             details.add(d);
         }
         testResultDetailRepository.saveAll(details);
+
+        int xp = (correctCount * 10) + (correctCount == totalCount ? 50 : 0);
+        userXpService.addXp(username, xp);
+        model.addAttribute("xpAwarded", xp);
 
         model.addAttribute("correctCount", correctCount);
         model.addAttribute("totalCount", totalCount);

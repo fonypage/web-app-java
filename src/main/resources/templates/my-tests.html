@@ -317,13 +317,16 @@
     <div class="profile">
         <div class="profile-left">
             <img class="avatar" src="/images/avatar-default.png" alt="avatar" th:src="@{/images/avatar-default.png}">
-            <div class="profile-name" th:text="${profile.username}">username</div>
+            <div class="profile-name" th:text="${profile.displayName}">username</div>
             <div class="profile-sub">Профиль ученика</div>
         </div>
 
         <div class="profile-right">
             <form class="institution-form" th:action="@{/my-tests/profile}" method="post">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="text" name="displayName"
+                       th:value="${profile.displayName}"
+                       placeholder="Имя профиля (например: Kirill)">
                 <input type="text" name="institution"
                        th:value="${profile.institution}"
                        placeholder="Учебное заведение (КубГУ, школа...)">
@@ -369,6 +372,85 @@
                     <div class="desc" th:text="${a.description}">Пройден первый тест</div>
                 </div>
             </div>
+
+
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+            <div class="achievements-title" style="margin-top:16px;">Графики прогресса</div>
+
+            <div style="display:grid; gap:14px;">
+                <div class="card" style="padding:14px;">
+                    <div style="font-weight:800; margin-bottom:8px;">XP по дням</div>
+                    <canvas id="xpPerDay"></canvas>
+                </div>
+
+                <div class="card" style="padding:14px;">
+                    <div style="font-weight:800; margin-bottom:8px;">Накопительный XP</div>
+                    <canvas id="xpCumulative"></canvas>
+                </div>
+
+                <div class="card" style="padding:14px;">
+                    <div style="font-weight:800; margin-bottom:8px;">Прогресс по темам</div>
+                    <canvas id="topicProgress"></canvas>
+                </div>
+            </div>
+
+            <script>
+                (async function(){
+                    const res = await fetch('/api/profile/charts?days=30');
+                    const data = await res.json();
+
+                    new Chart(document.getElementById('xpPerDay'), {
+                        type: 'bar',
+                        data: {
+                            labels: data.days,
+                            datasets: [{ label: 'XP', data: data.xpPerDay }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+
+                    new Chart(document.getElementById('xpCumulative'), {
+                        type: 'line',
+                        data: {
+                            labels: data.days,
+                            datasets: [{ label: 'XP', data: data.xpCumulative, tension: 0.25 }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+
+                    // два разных масштаба: % и количество решённых задач
+                    new Chart(document.getElementById('topicProgress'), {
+                        type: 'bar',
+                        data: {
+                            labels: data.topicLabels,
+                            datasets: [
+                                { label: 'Лучший % по тестам', data: data.bestPercent, xAxisID: 'x' },
+                                { label: 'Решено практик', data: data.practiceSolved, xAxisID: 'x2' }
+                            ]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            scales: {
+                                x: { beginAtZero: true, max: 100, position: 'bottom', title: { display:true, text:'%' } },
+                                x2: { beginAtZero: true, position: 'top', grid: { drawOnChartArea: false }, title: { display:true, text:'Задачи' } }
+                            }
+                        }
+                    });
+
+                })();
+            </script>
+
+
+
+
+
 
             <div style="margin-top:14px;">
                 <div style="font-weight:900; margin-bottom:10px;">
