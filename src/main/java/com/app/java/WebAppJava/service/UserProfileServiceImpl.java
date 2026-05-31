@@ -60,7 +60,6 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         int totalTests = results.size();
 
-        // проценты по попыткам
         List<Integer> percents = results.stream()
                 .map(this::percent)
                 .collect(Collectors.toList());
@@ -69,18 +68,14 @@ public class UserProfileServiceImpl implements UserProfileService {
         int bestPercent = percents.stream().max(Integer::compareTo).orElse(0);
         int avgPercent = percents.isEmpty() ? 0 : (int) Math.round(percents.stream().mapToInt(x -> x).average().orElse(0));
 
-        // XP: 10 * correct + бонус за 100% (+50)
         int xp = profile.getXp();
 
-        // уровни: каждые 500 XP — новый уровень
         int level = 1 + (xp / 500);
         int xpToNextLevel = 500 - (xp % 500);
         if (xpToNextLevel == 500) xpToNextLevel = 0;
 
-        // streak: подряд идущие дни с тестами
         int streakDays = computeStreakDays(results);
 
-        // достижения (вычисляемые)
         long solvedPractice = practiceTaskSolvedRepository.countByUsername(username);
 
         boolean practiceFirst = solvedPractice >= 1;
@@ -88,7 +83,6 @@ public class UserProfileServiceImpl implements UserProfileService {
         boolean practice5 = solvedPractice >= 5;
         boolean practice10 = solvedPractice >= 10;
 
-// "С первого раза": есть хотя бы одна решённая задача, у которой было ровно 1 сабмишн
         boolean practiceFirstTry = practiceTaskSolvedRepository.findTaskIdsByUsername(username).stream()
                 .anyMatch(taskId -> practiceSubmissionRepository.countByUsernameAndTaskId(username, taskId) == 1);
 
@@ -139,7 +133,6 @@ public class UserProfileServiceImpl implements UserProfileService {
             String dn = displayName.trim();
             if (dn.isEmpty()) dn = null;
 
-            // лёгкая валидация
             if (dn != null) {
                 if (dn.length() > 32) dn = dn.substring(0, 32);
                 dn = dn.replaceAll("[<>\"'\\\\]", "");
@@ -172,10 +165,6 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     private int computeStreakDays(List<TestResult> results) {
-        // ВАЖНО: тут нужен “дата прохождения теста”.
-        // Если у TestResult есть createdAt/finishedAt (Date/LocalDateTime) — подстрой метод toLocalDate(...) ниже.
-        // Если даты нет — скажи, и мы добавим её миграцией (это лучше).
-
         Set<LocalDate> days = results.stream()
                 .map(this::toLocalDateSafe)  // если вернёт null — фильтруем
                 .filter(Objects::nonNull)
@@ -183,7 +172,6 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         if (days.isEmpty()) return 0;
 
-        // streak считаем от "сегодня" или от последнего дня активности (так мягче)
         LocalDate current = ((TreeSet<LocalDate>) days).last();
         int streak = 0;
 
@@ -209,8 +197,6 @@ public class UserProfileServiceImpl implements UserProfileService {
             boolean practice10,
             boolean practiceFirstTry
     ) {
-        // “Освоение темы” считаем как наличие попытки >= 80% по теме
-        // (topicId/Topic берём из TestResult — подстрой если поле иначе)
         Set<Long> masteredTopics = results.stream()
                 .filter(r -> percent(r) >= 80)
                 .map(this::topicIdSafe)
@@ -224,14 +210,12 @@ public class UserProfileServiceImpl implements UserProfileService {
         boolean fiveTopics = masteredTopics.size() >= 5;
 
         return List.of(
-                // теория (как было)
                 new AchievementDto("FIRST_TEST", "🏁 Первый тест", "Пройди 1 тест", firstTest),
                 new AchievementDto("PERFECT", "🎯 Идеальный результат", "Получи 100% хотя бы раз", perfect),
                 new AchievementDto("TEN_TESTS", "🧠 10 тестов", "Пройди 10 тестов", tenTests),
                 new AchievementDto("STREAK_3", "🔥 Серия 3 дня", "Проходи тесты 3 дня подряд", streak3),
                 new AchievementDto("MASTER_5_TOPICS", "⭐ 5 тем освоено", "Набери ≥80% в 5 разных темах", fiveTopics),
 
-                // практика (новое)
                 new AchievementDto("PRACTICE_FIRST", "🧩 Первая задача", "Реши 1 практическую задачу", practiceFirst),
                 new AchievementDto("PRACTICE_FIRST_TRY", "⚡ С первого раза", "Реши задачу с первой попытки", practiceFirstTry),
                 new AchievementDto("PRACTICE_3", "🧩 3 задачи", "Реши 3 практические задачи", practice3),
@@ -272,7 +256,6 @@ public class UserProfileServiceImpl implements UserProfileService {
             list.add(new TopicProgressDto(topicId, title, attempts, best, avg, lastAttempt, mastered));
         }
 
-        // сорт: сначала освоенные, потом лучший %, потом последнее прохождение
         list.sort(Comparator
                 .comparing(TopicProgressDto::isMastered).reversed()
                 .thenComparing(TopicProgressDto::getBestPercent, Comparator.reverseOrder())
@@ -292,13 +275,12 @@ public class UserProfileServiceImpl implements UserProfileService {
             if (list.size() >= limit) break;
 
             TestResult tr = d.getResult();
-            Long topicId = tr.getTopicId(); // важно: чтобы в TestResult было поле topicId
+            Long topicId = tr.getTopicId();
             String topicTitle = topicTitleById.getOrDefault(topicId, "Тема #" + topicId);
 
             String questionText = d.getQuestion() != null ? d.getQuestion().getQuestion() : "Вопрос";
             String selected = d.getSelectedAnswer() != null ? d.getSelectedAnswer().getText() : "—";
 
-            // найти правильный ответ (в Question есть answers)
             String correctAnswer = "—";
             if (d.getQuestion() != null && d.getQuestion().getAnswers() != null) {
                 for (Answer a : d.getQuestion().getAnswers()) {

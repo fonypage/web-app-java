@@ -17,7 +17,7 @@ public class PracticeSubmission {
     private Long taskId;
 
     @Column(nullable = false)
-    private String status; // OK/WA/CE/TLE/RE
+    private String status;
 
     @Column(name = "passed_count", nullable = false)
     private int passedCount;
@@ -43,7 +43,6 @@ public class PracticeSubmission {
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // getters/setters (можно Lombok)
     public void setUsername(String username) { this.username = username; }
     public void setTaskId(Long taskId) { this.taskId = taskId; }
     public void setStatus(String status) { this.status = status; }

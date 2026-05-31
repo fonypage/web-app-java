@@ -21,30 +21,23 @@ public class TestResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 1) имя пользователя
     @Column(nullable = false)
     private String username;
 
-    // 2) id темы
     @Column(name = "topic_id", nullable = false)
     private Long topicId;
 
-    // 3) сколько правильно
     @Column(name = "correct_count", nullable = false)
     private int correctCount;
 
-    // 4) сколько всего
     @Column(name = "total_count", nullable = false)
     private int totalCount;
 
-    // 5) когда прошёл
     @Column(name = "taken_at", nullable = false, updatable = false)
     private LocalDateTime timestamp;
 
-    // === конструкторы ===
     public TestResult() {}
 
-    // === геттеры/сеттеры ===
 
     public Long getId() {
         return id;

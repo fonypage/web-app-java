@@ -11,7 +11,6 @@ public interface TestResultRepository extends JpaRepository<TestResult, Long> {
     List<TestResult> findByUsername(String username);
     List<TestResult> findByUsernameOrderByIdDesc(String username);
 
-    // (2.2) XP по дням из тестов за последние N дней
     @Query(value = """
         SELECT DATE(tr.taken_at) AS day,
                SUM(tr.correct_count * 10 + CASE WHEN tr.correct_count = tr.total_count THEN 50 ELSE 0 END) AS xp
@@ -23,7 +22,6 @@ public interface TestResultRepository extends JpaRepository<TestResult, Long> {
     """, nativeQuery = true)
     List<Object[]> sumTestXpByDay(@Param("username") String username, @Param("days") int days);
 
-    // (2.3) Лучший % по тестам на тему
     @Query(value = """
         SELECT tr.topic_id,
                MAX(ROUND((tr.correct_count / tr.total_count) * 100)) AS best_percent

@@ -44,7 +44,6 @@ public class EmailOtpService {
         if (!active.isEmpty()) {
             EmailLoginCode last = active.get(0);
             if (last.getLastSentAt() != null && last.getLastSentAt().isAfter(now.minusSeconds(cooldownSeconds))) {
-                // Не спамим кодами. Для UX — считаем что “код отправлен”.
                 return;
             }
         }
@@ -59,7 +58,6 @@ public class EmailOtpService {
         rec.setLastSentAt(now);
         repo.save(rec);
 
-        // временно: печатаем в консоль, пока не подключили Brevo
         mailSenderService.sendLoginCode(email, code, ttlMinutes);
     }
 

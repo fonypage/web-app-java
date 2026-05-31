@@ -13,7 +13,6 @@ public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                // public pages
                 .antMatchers(
                         "/", "/theory", "/practice", "/topic/**",
                         "/images/**",
@@ -21,14 +20,12 @@ public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/auth/email/**"
                 ).permitAll()
 
-                // user area
                 .antMatchers("/test/**", "/test-result", "/my-tests", "/my-tests/**", "/practice/**")
                 .hasAnyRole("USER","ADMIN")
 
                 .anyRequest().authenticated()
                 .and()
 
-                // вместо formLogin делаем редирект на /login-user, если не авторизован
                 .exceptionHandling()
                 .authenticationEntryPoint((req, res, ex) -> res.sendRedirect("/login-user"))
                 .and()

@@ -3,7 +3,7 @@ package com.app.java.WebAppJava.dto;
 import java.util.List;
 
 public class ProfileChartsDto {
-    public final List<String> days;          // yyyy-MM-dd
+    public final List<String> days;
     public final List<Integer> xpPerDay;
     public final List<Integer> xpCumulative;
 

@@ -40,14 +40,12 @@ public class MyTestsController {
         List<TestResult> results = testResultRepository.findByUsername(username);
         model.addAttribute("results", results);
 
-        // Вместо topics[result.topicId - 1] делаем мапу title по id
         List<Topic> topics = topicRepository.findAll();
         Map<Long, String> topicTitleById = topics.stream()
                 .collect(Collectors.toMap(Topic::getId, Topic::getTitle));
 
         model.addAttribute("topicTitleById", topicTitleById);
 
-        // Профиль + статистика + достижения
         model.addAttribute("profile", userProfileService.getSummary(username));
 
         return "my-tests";

@@ -10,7 +10,6 @@ public class TestResultDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ВАЖНО: в БД колонка result_id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "result_id", nullable = false)
     private TestResult result;

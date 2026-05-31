@@ -3,8 +3,8 @@ package com.app.java.WebAppJava.dto;
 import java.util.List;
 
 public class UserProfileSummaryDto {
-    private final String username;     // технический логин (у тебя это email)
-    private final String displayName;  // красивое имя для отображения
+    private final String username;
+    private final String displayName;
     private final String institution;
 
     private final int totalTests;
@@ -26,7 +26,6 @@ public class UserProfileSummaryDto {
 
     public List<MistakeDto> getLastMistakes() { return lastMistakes; }
 
-    // ✅ Старый конструктор — оставляем для совместимости
     public UserProfileSummaryDto(
             String username,
             String institution,
@@ -44,7 +43,7 @@ public class UserProfileSummaryDto {
             List<MistakeDto> lastMistakes
     ) {
         this.username = username;
-        this.displayName = username; // по умолчанию показываем username
+        this.displayName = username;
         this.institution = institution;
         this.totalTests = totalTests;
         this.bestPercent = bestPercent;
@@ -60,7 +59,6 @@ public class UserProfileSummaryDto {
         this.lastMistakes = lastMistakes;
     }
 
-    // ✅ Новый конструктор (когда будешь готов прокидывать displayName из БД)
     public UserProfileSummaryDto(
             String username,
             String displayName,

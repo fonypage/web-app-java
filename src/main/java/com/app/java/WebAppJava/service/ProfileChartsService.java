@@ -26,7 +26,6 @@ public class ProfileChartsService {
 
     public ProfileChartsDto build(String username, int daysBack) {
 
-        // ===== XP по дням (practice + tests) =====
         Map<LocalDate, Integer> xpMap = new HashMap<>();
 
         for (Object[] r : solvedRepo.sumPracticeXpByDay(username, daysBack)) {
@@ -41,7 +40,6 @@ public class ProfileChartsService {
             xpMap.merge(d, xp, Integer::sum);
         }
 
-        // делаем непрерывный ряд дат (чтобы были нули)
         List<String> days = new ArrayList<>();
         List<Integer> xpPerDay = new ArrayList<>();
         List<Integer> xpCumulative = new ArrayList<>();
@@ -58,7 +56,6 @@ public class ProfileChartsService {
             xpCumulative.add(cum);
         }
 
-        // ===== Прогресс по темам =====
         Map<Long, Integer> bestPercentByTopic = new HashMap<>();
         for (Object[] r : testRepo.bestPercentByTopic(username)) {
             long topicId = ((Number) r[0]).longValue();
@@ -73,16 +70,13 @@ public class ProfileChartsService {
             solvedPracticeByTopic.put(topicId, count);
         }
 
-        // соберём все topicId, где есть прогресс
         Set<Long> topicIds = new HashSet<>();
         topicIds.addAll(bestPercentByTopic.keySet());
         topicIds.addAll(solvedPracticeByTopic.keySet());
 
-        // подтянем названия тем
         Map<Long, String> titles = new HashMap<>();
         topicRepo.findAllById(topicIds).forEach(t -> titles.put(t.getId(), t.getTitle()));
 
-        // стабильный порядок: по названию
         List<Long> orderedIds = new ArrayList<>(topicIds);
         orderedIds.sort(Comparator.comparing(id -> titles.getOrDefault(id, "topic#" + id)));
 

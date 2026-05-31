@@ -67,7 +67,7 @@ public class DockerJudgeService {
 
             int compileLimitMs = Math.max(60000, timeLimitMs * 10);
 
-            int oneShotLimitMs = Math.max(60000, timeLimitMs * 10); // на Windows безопаснее дать побольше
+            int oneShotLimitMs = Math.max(60000, timeLimitMs * 10);
 
             ExecResult run = dockerExec(
                     dir,
