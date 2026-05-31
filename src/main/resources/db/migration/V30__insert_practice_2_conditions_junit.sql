@@ -39,13 +39,18 @@ VALUES (
     'import org.junit.jupiter.api.*;\n',
     'import static org.junit.jupiter.api.Assertions.*;\n\n',
     'public class TaskTest {\n',
-    '  @Test void pos(){ assertEquals(\"POSITIVE\", Solution.sign(7)); }\n',
-    '  @Test void neg(){ assertEquals(\"NEGATIVE\", Solution.sign(-3)); }\n',
-    '  @Test void zero(){ assertEquals(\"ZERO\", Solution.sign(0)); }\n',
-    '  @Test void edge(){\n',
-    '    assertEquals(\"POSITIVE\", Solution.sign(1));\n',
-    '    assertEquals(\"NEGATIVE\", Solution.sign(-1));\n',
+    '  @Test void positive(){ assertEquals("POSITIVE", Solution.sign(7)); }\n',
+    '  @Test void negative(){ assertEquals("NEGATIVE", Solution.sign(-3)); }\n',
+    '  @Test void zero(){ assertEquals("ZERO", Solution.sign(0)); }\n',
+    '  @Test void boundary1(){ assertEquals("POSITIVE", Solution.sign(1)); }\n',
+    '  @Test void boundaryNeg1(){ assertEquals("NEGATIVE", Solution.sign(-1)); }\n',
+    '  @Test void largePositive(){ assertEquals("POSITIVE", Solution.sign(Integer.MAX_VALUE)); }\n',
+    '  @Test void largeNegative(){ assertEquals("NEGATIVE", Solution.sign(Integer.MIN_VALUE)); }\n',
+    '  @Test void notEmptyString(){ \n',
+    '    String result = Solution.sign(5);\n',
+    '    assertTrue(result.length() > 0, "Строка не должна быть пустой");\n',
     '  }\n',
     '}\n'
   )
 );
+

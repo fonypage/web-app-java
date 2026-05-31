@@ -293,19 +293,11 @@
       Проверь контроллер и маршрут для страницы темы.
     </div>
 
-    <!-- Кнопки: тест и видео обычно только для theory, но если у тебя иначе — можно убрать условие -->
     <div class="actions" th:if="${topic != null}">
       <a class="btn test"
          th:if="${topic.type == 'theory'}"
          th:href="@{'/test/' + ${topic.id}}">
         ✅ Пройти тест
-      </a>
-
-      <a class="btn video"
-         th:if="${topic.type == 'theory' and topic.videoUrl != null and !#strings.isEmpty(topic.videoUrl)}"
-         th:href="${topic.videoUrl}"
-         target="_blank">
-        ▶ Смотреть видео
       </a>
     </div>
 
